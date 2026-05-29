@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:hud_principal"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="850" Width="850">
     <Grid>
         <StackPanel Margin="20">
             <TextBlock Text="Caminho de Entrada (Arquivo ou Pasta):" Margin="0,10,0,5"/>

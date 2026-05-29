@@ -60,5 +60,10 @@ namespace Hud_Principal
 
             MessageBox.Show($"{msg}\nDestino salvo em: {TxtSaida.Text}");
         }
+
+        private void TxtSaida_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
     }
 }

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Itens de Solução/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Project Path="conversor_de_arquivos/Conversor_de_Arquivos.csproj" />
+  <Project Path="hud_principal/Hud_Principal.csproj" />
+  <Project Path="Modulo_Seguranca/Modulo_Seguranca.csproj" />
+</Solution>

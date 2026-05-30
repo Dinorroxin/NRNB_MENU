@@ -1,0 +1,25 @@
+{
+  "ExtensoesBloqueadas": [
+    "exe",
+    "bat",
+    "cmd",
+    "com",
+    "cpl",
+    "js",
+    "vbs",
+    "ps1",
+    "msi"
+  ],
+
+  "Vigiagua": {
+    "Email": "",
+    "Senha": ""
+  },
+
+  "Gal": {
+    "Usuario": "",
+    "Senha": "",
+    "Modulo": "",
+    "Laboratorio": ""
+  }
+}

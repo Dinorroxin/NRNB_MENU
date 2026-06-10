@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Conversor_de_Crquivos\Conversor_de_Arquivos.csproj" />
+    <ProjectReference Include="..\Conversor_de_Arquivos\Conversor_de_Arquivos.csproj" />
     <ProjectReference Include="..\Modulo_Seguranca\Modulo_Seguranca.csproj" />
   </ItemGroup>
 

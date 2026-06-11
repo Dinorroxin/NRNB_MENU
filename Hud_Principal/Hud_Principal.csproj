@@ -13,4 +13,10 @@
     <ProjectReference Include="..\Modulo_Seguranca\Modulo_Seguranca.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Assets\Vigiagua_Logo.png" />
+    <Resource Include="Assets\Vigiar_Logo.png" />
+    <Resource Include="Assets\Vigidesastres_Logo.png" />
+  </ItemGroup>    
+
 </Project>

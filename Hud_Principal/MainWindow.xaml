@@ -43,7 +43,6 @@
 
         <Style x:Key="SubmenuPanel" TargetType="StackPanel">
             <Setter Property="MaxHeight" Value="0"/>
-            <!-- <Setter Property="ClipToBounds" Value="True"/> -->
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <Trigger Property="Visibility" Value="Visible">
@@ -79,7 +78,7 @@
             Grid.Row="0" 
             Grid.Column="0" 
             Grid.ColumnSpan="2"
-            Background="#1a1a1a"
+            Background="#141716 "
             BorderBrush="#2e2e2e"
             BorderThickness="0,0,0,1"
             Padding="24,0">
@@ -233,44 +232,56 @@
             </DockPanel>
         </Border>
 
-        <StackPanel 
-            Grid.Row="1" 
-            Grid.Column="1" 
-            VerticalAlignment="Center" 
-            HorizontalAlignment="Center" 
-            Margin="60,0">
+        <StackPanel
+            Grid.Row="1"
+            Grid.Column="1"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left"
+            Background="#0d0f0e">
+            
 
-            <TextBlock 
-                Text="NRNB" 
-                FontSize="72" 
-                FontWeight="Bold" 
-                Foreground="#000000" 
-                HorizontalAlignment="Center"
-                Margin="0,0,0,5"/>
+            <TextBlock
+                FontSize="72" FontWeight="Bold"
+                HorizontalAlignment="Center" Margin="0,0,0,5">
+                <Run Text="NRN" Foreground="#d4d8d5"/>
+                <Run Text="B" Foreground="#d4d8d5"/>
+            </TextBlock>
 
-            <TextBlock 
-                Text="Núcleo de Riscos Não Biológicos" 
-                FontSize="36" 
-                FontWeight="SemiBold" 
-                Foreground="#000000" 
-                HorizontalAlignment="Center"
-                Margin="0,0,0,10"/>
+            <TextBlock
+                Text="Núcleo de Riscos Não Biológicos"
+                FontSize="32" FontWeight="SemiBold"
+                Foreground="#d4d8d5"
+                HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
-            <TextBlock 
-                Text="Logo dos Programas" 
-                FontSize="24" 
-                Foreground="#333333" 
-                HorizontalAlignment="Center"
-                Margin="0,0,0,80"/>
+            <!-- Program badges -->
+            <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="Center" Margin="0,0,0,40">
+                <Image 
+                    Source="/Assets/Vigiagua_Logo.png"
+                    Height="80" 
+                    Margin="12" 
+                    RenderOptions.BitmapScalingMode="HighQuality"/>
+                <Image 
+                    Source="/Assets/Vigiar_Logo.png"
+                    Height="80" 
+                    Margin="12" 
+                    RenderOptions.BitmapScalingMode="HighQuality"/>
+                <Image 
+                    Source="/Assets/Vigidesastres_Logo.png"
+                    Height="80" 
+                    Margin="12" 
+                    RenderOptions.BitmapScalingMode="HighQuality"/>
+                
+                <Border Background="#EAF3DE" CornerRadius="4" Padding="10,5" Margin="4,0">
+                    <TextBlock Text="🌿 Vigipeq" Foreground="#3B6D11" FontSize="13"/>
+                </Border>
+            </StackPanel>
 
-            <TextBlock 
-                Text="Breve resumo do que é o projeto com definição do que é esse núcleo, seus programas, motivo da escolha de cores, instruções básicas sobre o menu e como utilizar" 
-                FontSize="20" 
-                Foreground="#1A1A1A" 
-                TextWrapping="Wrap" 
-                TextAlignment="Center" 
-                MaxWidth="900"
-                LineHeight="32"/>
+            <TextBlock
+        Text="Menu interativo para automação de processos internos de vigilância ambiental. Desenvolvido pela equipe GTVAM / Agevisa. Selecione um módulo no menu à esquerda para começar."
+        FontSize="16" Foreground="#6b726e"
+        TextWrapping="Wrap" TextAlignment="Center"
+        MaxWidth="800" LineHeight="28"/>
 
         </StackPanel>
 

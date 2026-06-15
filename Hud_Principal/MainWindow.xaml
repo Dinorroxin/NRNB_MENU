@@ -18,14 +18,13 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Foreground" Value="#e5e7e6"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border"
                             Background="{TemplateBinding Background}"
                             Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            <ContentPresenter HorizontalAlignment="Left"
                                           VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -63,7 +62,7 @@
     </Window.Resources>
 
 
-    <Grid>
+    <Grid Background="#000000">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
@@ -78,7 +77,7 @@
             Grid.Row="0" 
             Grid.Column="0" 
             Grid.ColumnSpan="2"
-            Background="#141716 "
+            Background="#1a1a1a "
             BorderBrush="#2e2e2e"
             BorderThickness="0,0,0,1"
             Padding="24,0">
@@ -91,7 +90,7 @@
                     Padding="12,6"
                     Cursor="Hand"/>
 
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Ellipse Width="8" Height="8" Fill="#1D9E75" Margin="0,0,10,0"/>
                     <TextBlock Text="NRNB" FontSize="16" FontWeight="Medium" Foreground="#1D9E75"/>
                     <TextBlock Text="  v0.1.0-alpha" FontSize="12" Foreground="#9CA3A0" VerticalAlignment="Center"/>
@@ -108,7 +107,6 @@
 
             <DockPanel>
 
-                <!-- RODAPÉ FIXO -->
                 <StackPanel DockPanel.Dock="Bottom" Margin="14,12">
                     <TextBlock 
                         Text="Autor" 
@@ -123,7 +121,6 @@
                         TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <!-- MENU COM SCROLL -->
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,12,0,0">
 
@@ -133,7 +130,6 @@
                             Foreground="#6B7280" 
                             Margin="14,0,0,8"/>
 
-                        <!-- Conversor -->
                         <Button 
                             Content="📄  Conversor de arquivos"
                             HorizontalContentAlignment="Left"
@@ -232,58 +228,114 @@
             </DockPanel>
         </Border>
 
-        <StackPanel
-            Grid.Row="1"
-            Grid.Column="1"
-            VerticalAlignment="Center"
-            HorizontalAlignment="Left"
-            Background="#0d0f0e">
-            
+        <Border
+    Grid.Column="1"
+    Grid.Row="1">
 
-            <TextBlock
-                FontSize="72" FontWeight="Bold"
-                HorizontalAlignment="Center" Margin="0,0,0,5">
-                <Run Text="NRN" Foreground="#d4d8d5"/>
-                <Run Text="B" Foreground="#d4d8d5"/>
-            </TextBlock>
+            <StackPanel
+        VerticalAlignment="Top"
+        HorizontalAlignment="Center"
+        Margin="60, 60, 60, 40">
 
-            <TextBlock
-                Text="Núcleo de Riscos Não Biológicos"
-                FontSize="32" FontWeight="SemiBold"
-                Foreground="#d4d8d5"
-                HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock
+            FontSize="72"
+            FontWeight="Bold"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,5">
+            <Run Text="NRNB" Foreground="#d4d8d5"/>
+                </TextBlock>
 
-            <!-- Program badges -->
-            <StackPanel Orientation="Horizontal"
-                HorizontalAlignment="Center" Margin="0,0,0,40">
-                <Image 
-                    Source="/Assets/Vigiagua_Logo.png"
-                    Height="80" 
-                    Margin="12" 
-                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                <Image 
-                    Source="/Assets/Vigiar_Logo.png"
-                    Height="80" 
-                    Margin="12" 
-                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                <Image 
-                    Source="/Assets/Vigidesastres_Logo.png"
-                    Height="80" 
-                    Margin="12" 
-                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                
-                <Border Background="#EAF3DE" CornerRadius="4" Padding="10,5" Margin="4,0">
-                    <TextBlock Text="🌿 Vigipeq" Foreground="#3B6D11" FontSize="13"/>
-                </Border>
+                <TextBlock
+            Text="Núcleo de Riscos Não Biológicos"
+            FontSize="32"
+            FontWeight="SemiBold"
+            Foreground="#d4d8d5"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,10"/>
+
+                <StackPanel
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,40">
+                    <Image Source="/Assets/Vigiagua_Logo.png"
+                   Height="80" Width="80"
+                   Stretch="Uniform" Margin="12"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Image Source="/Assets/Vigiar_Logo.png"
+                   Height="80" Width="80"
+                   Stretch="Uniform" Margin="12"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Image Source="/Assets/Vigidesastres_Logo.png"
+                   Height="80" Width="80"
+                   Stretch="Uniform" Margin="12"
+                   RenderOptions.BitmapScalingMode="HighQuality"/>
+                </StackPanel>
+
+                <TextBlock
+            Text="Menu interativo para automação de processos internos de vigilância ambiental. Desenvolvido pela equipe GTVAM / Agevisa. Selecione um módulo no menu à esquerda para começar."
+            FontSize="16" Foreground="#6b726e"
+            TextWrapping="Wrap" TextAlignment="Center"
+            MaxWidth="800" LineHeight="28"/>
+
+                <WrapPanel HorizontalAlignment="Center" Margin="0, 40, 0, 0">
+
+                    <Border Background="#E1F5FE" CornerRadius="8"
+                    Padding="20, 16" Margin="8" Width="280">
+                        <StackPanel>
+                            <TextBlock Text="💧 Vigiagua" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#0277BD" Margin="0, 0, 0, 8"/>
+                            <TextBlock FontSize="13" Foreground="#01579B" TextWrapping="Wrap" LineHeight="20"
+                                   Text="Vigilância da qualidade da água para consumo humano. Monitoramento de parâmetros físico-químicos e microbiológicos."/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#E6F1FB" CornerRadius="8"
+                    Padding="20, 16" Margin="8" Width="280">
+                        <StackPanel>
+                            <TextBlock Text="💨 Vigiar" FontSize="15" FontWeight="SemiBold"
+                                   Foreground="#185FA5" Margin="0, 0, 0, 8"/>
+                            <TextBlock FontSize="13" Foreground="#1A4F7A" TextWrapping="Wrap" LineHeight="20"
+                                   Text="Monitoramento da qualidade do ar. Análise de poluentes atmosféricos e impactos à saúde respiratória."/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#FAEEDA" CornerRadius="8"
+                    Padding="20,16" Margin="8" Width="280">
+                        <StackPanel>
+                            <TextBlock Text="⚠ Vigidesastres" FontSize="15" FontWeight="SemiBold"
+                       Foreground="#854F0B" Margin="0,0,0,8"/>
+                            <TextBlock FontSize="13" Foreground="#6D4008" TextWrapping="Wrap" LineHeight="20"
+                       Text="Vigilância em saúde ambiental voltada a eventos e desastres naturais."/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="#EAF3DE" CornerRadius="8"
+                    Padding="20,16" Margin="8" Width="280">
+                        <StackPanel>
+                            <TextBlock Text="🌿 Vigipeq" FontSize="15" FontWeight="SemiBold"
+                       Foreground="#3B6D11" Margin="0,0,0,8"/>
+                            <TextBlock FontSize="13" Foreground="#2E5A0D" TextWrapping="Wrap" LineHeight="20"
+                       Text="Monitoramento e vigilância da exposição a agrotóxicos e produtos químicos no ambiente."/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
             </StackPanel>
+        </Border>
 
-            <TextBlock
-        Text="Menu interativo para automação de processos internos de vigilância ambiental. Desenvolvido pela equipe GTVAM / Agevisa. Selecione um módulo no menu à esquerda para começar."
-        FontSize="16" Foreground="#6b726e"
-        TextWrapping="Wrap" TextAlignment="Center"
-        MaxWidth="800" LineHeight="28"/>
-
-        </StackPanel>
+        <TextBlock Grid.Row="1" 
+           Grid.Column="1" 
+           VerticalAlignment="Bottom" 
+           HorizontalAlignment="Right" 
+           Margin="15" 
+           FontSize="13"
+           Text="Repositório GitHub: "
+           Foreground="AntiqueWhite">  
+    <Hyperlink
+        Foreground="AntiqueWhite"
+        NavigateUri="https://github.com/Dinorroxin/NRNB_MENU"
+        RequestNavigate="Hyperlink_RequestNavigate">
+        https://github.com/Dinorroxin/NRNB_MENU
+    </Hyperlink>
+        </TextBlock>
 
     </Grid>
 </Window>

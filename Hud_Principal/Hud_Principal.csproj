@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\github-mark-white.png" />
     <Resource Include="Assets\Vigiagua_Logo.png" />
     <Resource Include="Assets\Vigiar_Logo.png" />
     <Resource Include="Assets\Vigidesastres_Logo.png" />

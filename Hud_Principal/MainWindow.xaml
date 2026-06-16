@@ -62,7 +62,7 @@
     </Window.Resources>
 
 
-    <Grid Background="#000000">
+    <Grid Background="#0d0f0e">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
@@ -321,20 +321,26 @@
             </StackPanel>
         </Border>
 
+
         <TextBlock Grid.Row="1" 
            Grid.Column="1" 
            VerticalAlignment="Bottom" 
            HorizontalAlignment="Right" 
            Margin="15" 
            FontSize="13"
-           Text="Repositório GitHub: "
-           Foreground="AntiqueWhite">  
-    <Hyperlink
-        Foreground="AntiqueWhite"
-        NavigateUri="https://github.com/Dinorroxin/NRNB_MENU"
-        RequestNavigate="Hyperlink_RequestNavigate">
-        https://github.com/Dinorroxin/NRNB_MENU
-    </Hyperlink>
+           Foreground="AntiqueWhite">
+            <InlineUIContainer BaselineAlignment="Center">
+                <Image Source="/Assets/github-mark-white.png"
+                Height="16" Width="16"
+                RenderOptions.BitmapScalingMode="HighQuality"
+                Margin="0,0,4,0"/>
+            </InlineUIContainer>
+            <Hyperlink
+                Foreground="AntiqueWhite"
+                NavigateUri="https://github.com/Dinorroxin/NRNB_MENU"
+                RequestNavigate="Hyperlink_RequestNavigate">
+                github.com/Dinorroxin/NRNB_MENU
+            </Hyperlink>
         </TextBlock>
 
     </Grid>

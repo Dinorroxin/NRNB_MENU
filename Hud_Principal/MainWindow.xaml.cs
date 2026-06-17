@@ -11,8 +11,11 @@ namespace Hud_Principal
         public MainWindow()
         {
             InitializeComponent();
+            // Lista com os ids dos paineis
+            _panels = [HomePanel, ConfigPanel];
         }
 
+        // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez
         private void ToggleSubmenu(StackPanel submenu)
         {
             if (submenu.MaxHeight == 0)
@@ -29,6 +32,7 @@ namespace Hud_Principal
             }
         }
 
+        // Informando que a função acima (ToggleSubmenu) estará nos ementos de id SisaguaSubmenu....
         private void BtnSisagua_Click(object sender, RoutedEventArgs e)
             => ToggleSubmenu(SisaguaSubmenu);
 
@@ -38,6 +42,7 @@ namespace Hud_Principal
         private void BtnIdaron_Click(object sender, RoutedEventArgs e)
             => ToggleSubmenu(IdaronSubmenu);
 
+        // Lógica para navegação de links na página xaml
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(new ProcessStartInfo
@@ -49,5 +54,24 @@ namespace Hud_Principal
             e.Handled = true;
         }
 
+        // Lista com todos os painéis da grid (x:Name="[Nome]")
+        private List<FrameworkElement> _panels;
+
+        // Colapsa todos e abre somente o solicitado
+        private void ShowPanel(FrameworkElement panel)
+        {
+            foreach (var i in _panels)
+                i.Visibility = Visibility.Collapsed;
+
+            panel.Visibility = Visibility.Visible;   
+        }
+
+        // Acessa a grid das configurações
+        private void BtnConfig_Click(object sender, RoutedEventArgs e)
+            => ShowPanel(ConfigPanel);
+
+        // Função para as setas para voltar ao homepage
+        private void BtnHome_click(object sender, RoutedEventArgs e)
+            => ShowPanel(HomePanel);
     }
 }

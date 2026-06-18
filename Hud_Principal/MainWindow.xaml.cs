@@ -13,6 +13,9 @@ namespace Hud_Principal
             InitializeComponent();
             // Lista com os ids dos paineis
             _panels = [HomePanel, ConfigPanel];
+
+            // Puxa a função para o view.ConfigPanel para entrar
+            ConfigPanel.InvokeHomePanel += (s, e) => ShowPanel(HomePanel);
         }
 
         // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez

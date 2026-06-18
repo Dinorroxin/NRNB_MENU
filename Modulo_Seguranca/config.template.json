@@ -1,28 +1,29 @@
 {
-  "ExtensoesBloqueadas": [
-    "exe",
-    "bat",
-    "cmd",
-    "com",
-    "cpl",
-    "js",
-    "vbs",
-    "ps1",
-    "msi"
-  ],
+  "ExtensoesBloqueadas": [],
 
   "Vigiagua": {
     "Email": "",
     "Senha": "",
+    "PastaArquivosBrutosDiretriz": "",
     "PastaCumprimentoDaDiretrizMensal": "",
     "PastaCumprimentoDaDiretrizAnual": "",
+    "PastaArquivosBrutosControle": "",
     "PastaControle": ""
+  },
+
+  "Vigiar": {
+    "PastaArquivosBrutosQueimadas": "",
+    "PastaQueimadas": "",
+    "PastaArquivosBrutosIqAr": "",
+    "PastaIqAr": ""
   },
 
   "Gal": {
     "Usuario": "",
     "Senha": "",
     "Modulo": "",
-    "Laboratorio": ""
+    "Laboratorio": "",
+    "PastaArquivosBrutosAmostras": "",
+    "PastaAmostras": ""
   }
 }

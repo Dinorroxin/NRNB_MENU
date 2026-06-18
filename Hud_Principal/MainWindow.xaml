@@ -1,5 +1,6 @@
 ﻿<Window
     x:Class="Hud_Principal.MainWindow"
+    xmlns:views="clr-namespace:Hud_Principal.Views"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -230,123 +231,18 @@
             </DockPanel>
         </Border>
 
-        <Border
+        <views:HomeView
             x:Name="HomePanel"
             Grid.Column="1"
-            Grid.Row="1">
+            Grid.Row="1"/>
 
-            <StackPanel
-        VerticalAlignment="Top"
-        HorizontalAlignment="Center"
-        Margin="60, 60, 60, 40">
-
-                <TextBlock
-            FontSize="72"
-            FontWeight="Bold"
-            HorizontalAlignment="Center"
-            Margin="0,0,0,5">
-            <Run Text="NRNB" Foreground="#d4d8d5"/>
-                </TextBlock>
-
-                <TextBlock
-            Text="Núcleo de Riscos Não Biológicos"
-            FontSize="32"
-            FontWeight="SemiBold"
-            Foreground="#d4d8d5"
-            HorizontalAlignment="Center"
-            Margin="0,0,0,10"/>
-
-                <StackPanel
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            Margin="0,0,0,40">
-                    <Image Source="/Assets/Vigiagua_Logo.png"
-                   Height="80" Width="80"
-                   Stretch="Uniform" Margin="12"
-                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <Image Source="/Assets/Vigiar_Logo.png"
-                   Height="80" Width="80"
-                   Stretch="Uniform" Margin="12"
-                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <Image Source="/Assets/Vigidesastres_Logo.png"
-                   Height="80" Width="80"
-                   Stretch="Uniform" Margin="12"
-                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                </StackPanel>
-
-                <TextBlock
-            Text="Menu interativo para automação de processos internos de vigilância ambiental. Desenvolvido pela equipe GTVAM / Agevisa. Selecione um módulo no menu à esquerda para começar."
-            FontSize="16" Foreground="#6b726e"
-            TextWrapping="Wrap" TextAlignment="Center"
-            MaxWidth="800" LineHeight="28"/>
-
-                <WrapPanel HorizontalAlignment="Center" Margin="0, 40, 0, 0">
-
-                    <Border Background="#E1F5FE" CornerRadius="8"
-                    Padding="20, 16" Margin="8" Width="280">
-                        <StackPanel>
-                            <TextBlock Text="💧 Vigiagua" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#0277BD" Margin="0, 0, 0, 8"/>
-                            <TextBlock FontSize="13" Foreground="#01579B" TextWrapping="Wrap" LineHeight="20"
-                                   Text="Vigilância da qualidade da água para consumo humano. Monitoramento de parâmetros físico-químicos e microbiológicos."/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="#E6F1FB" CornerRadius="8"
-                    Padding="20, 16" Margin="8" Width="280">
-                        <StackPanel>
-                            <TextBlock Text="💨 Vigiar" FontSize="15" FontWeight="SemiBold"
-                                   Foreground="#185FA5" Margin="0, 0, 0, 8"/>
-                            <TextBlock FontSize="13" Foreground="#1A4F7A" TextWrapping="Wrap" LineHeight="20"
-                                   Text="Monitoramento da qualidade do ar. Análise de poluentes atmosféricos e impactos à saúde respiratória."/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Background="#FAEEDA" CornerRadius="8"
-                    Padding="20,16" Margin="8" Width="280">
-                        <StackPanel>
-                            <TextBlock Text="⚠ Vigidesastres" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#854F0B" Margin="0,0,0,8"/>
-                            <TextBlock FontSize="13" Foreground="#6D4008" TextWrapping="Wrap" LineHeight="20"
-                       Text="Vigilância em saúde ambiental voltada a eventos e desastres naturais."/>
-                        </StackPanel>
-                    </Border>
-                    <Border Background="#EAF3DE" CornerRadius="8"
-                    Padding="20,16" Margin="8" Width="280">
-                        <StackPanel>
-                            <TextBlock Text="🌿 Vigipeq" FontSize="15" FontWeight="SemiBold"
-                       Foreground="#3B6D11" Margin="0,0,0,8"/>
-                            <TextBlock FontSize="13" Foreground="#2E5A0D" TextWrapping="Wrap" LineHeight="20"
-                       Text="Monitoramento e vigilância da exposição a agrotóxicos e produtos químicos no ambiente."/>
-                        </StackPanel>
-                    </Border>
-                </WrapPanel>
-            </StackPanel>
-        </Border>
-
-        <Border
+        <views:ConfigView
             x:Name="ConfigPanel"
             Grid.Column="1"
             Grid.Row="1"
-            Visibility="Collapsed">
+            Visibility="Collapsed"/>
 
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock
-                    Text="Configurações — em construção"
-                    Foreground="#d4d8d5"
-                    FontSize="20"
-                    Margin="0,0,0,20"/>
-
-                <Button
-                    Content="← Voltar"
-                    Padding="12,6"
-                    Cursor="Hand"
-                    Click="BtnHome_click"/>
-                
-            </StackPanel>
-        </Border>
-
-        <TextBlock Grid.Row="1" 
+            <TextBlock Grid.Row="1" 
            Grid.Column="1" 
            VerticalAlignment="Bottom" 
            HorizontalAlignment="Right" 

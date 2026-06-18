@@ -6,6 +6,9 @@
         public const string UrlLogin = "https://sisagua.saude.gov.br/sisagua/paginaExterna.jsf";
         public string Email { get; set; } = string.Empty;   // string.Empty; Para não dar aviso de que a propriedade pode ser nula
         public string Senha { get; set; } = string.Empty;
+        public string PastaCumprimentoDaDiretrizMensal { get; set; } = string.Empty;
+        public string PastaCumprimentoDaDiretrizAnual { get; set; } = string.Empty;
+        public string PastaControle { get; set; } = string.Empty;
     }
 
     public class ConfiguracaoGal

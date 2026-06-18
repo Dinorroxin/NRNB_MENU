@@ -13,7 +13,10 @@
 
   "Vigiagua": {
     "Email": "",
-    "Senha": ""
+    "Senha": "",
+    "PastaCumprimentoDaDiretrizMensal": "",
+    "PastaCumprimentoDaDiretrizAnual": "",
+    "PastaControle": ""
   },
 
   "Gal": {

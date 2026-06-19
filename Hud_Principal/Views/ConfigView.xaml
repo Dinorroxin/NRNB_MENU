@@ -9,17 +9,13 @@
     >
     <Grid>
 
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock
-                Text="Configuraçõs - em construção"
-                Foreground="#d4d8d5"
-                FontSize="20"
-                Margin="0,0,0,20"/>
+        <StackPanel Margin="20">
+
             <Button
-                Content="← Voltar"
-                Padding="12, 6"
-                Cursor="Hand"
-                Click="BtnHome_click"/>
+                x:Name="BtnVigiaguaSection"
+                Content="💧 Vigiagua"
+                Style="{StaticResource SidebarButton}"/>
+
         </StackPanel>
 
     </Grid>

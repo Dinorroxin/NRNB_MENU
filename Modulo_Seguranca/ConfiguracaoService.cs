@@ -50,7 +50,7 @@ namespace Modulo_Seguranca
 
                 {config.Vigiar.PastaArquivosBrutosQueimadas, "Pasta de arquivos brutos do Queimadas não informada"},
                 {config.Vigiar.PastaQueimadas, "Pasta de saída do Queimadas não informada"},
-                {config.Vigiar.PastaArquivosBrutosIqAr, "Pasta de arquivos brutos do IqAr informada"},
+                {config.Vigiar.PastaArquivosBrutosIqAr, "Pasta de arquivos brutos do IqAr não informada"},
                 {config.Vigiar.PastaIqAr, "Pasta de saída do IqAr não informada"},
 
                 {config.Gal.Usuario, "Usuário do Gal não informado"},

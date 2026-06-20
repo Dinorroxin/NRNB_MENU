@@ -6,11 +6,11 @@ namespace Hud_Principal.Views
 {
     public class BaseView : UserControl
     {
-        public event EventHandler? InvokeHomePanel;
+        public event EventHandler? RequestHome;
 
         protected void BtnHome_click(object sender, EventArgs e)
         
-            => InvokeHomePanel?.Invoke(this, EventArgs.Empty);
+            => RequestHome?.Invoke(this, EventArgs.Empty);
         
     }
 }

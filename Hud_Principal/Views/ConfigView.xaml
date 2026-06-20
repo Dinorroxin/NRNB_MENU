@@ -5,18 +5,109 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:local="clr-namespace:Hud_Principal.Views"
-    mc:Ignorable="d"
-    >
+    mc:Ignorable="d">
+
     <Grid>
 
-        <StackPanel Margin="20">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,60,0,0">
+            <StackPanel Margin="40,10" MaxWidth="500">
 
-            <Button
-                x:Name="BtnVigiaguaSection"
-                Content="💧 Vigiagua"
-                Style="{StaticResource SidebarButton}"/>
+                <Button
+                    x:Name="BtnVigiaguaSection"
+                    Content="💧 Vigiagua"
+                    HorizontalAlignment="Left"
+                    FontSize="25"
+                    Padding="14,10"
+                    Style="{StaticResource SidebarButton}"
+                    Click="BtnVigiaguaSection_Click"/>
 
-        </StackPanel>
+                <StackPanel x:Name="VigiaguaSection" Style="{StaticResource SubmenuPanel}" Margin="14,10,0,0">
+
+                    <TextBlock Text="Email" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <TextBox x:Name="TxtEmail" Style="{StaticResource FormField}"/>
+
+                    <TextBlock Text="Password" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <Grid>
+                        <PasswordBox x:Name="TxtPassword" Style="{StaticResource PasswordFormField}"/>
+                        <TextBox x:Name="TxtPasswordVisible" Style="{StaticResource FormField}" Visibility="Collapsed"/>
+                        <Button
+                            x:Name="BtnTogglePassword"
+                            Content="👁"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Stretch"
+                            FontSize="14"
+                            Background="#1f1f1f"
+                            Foreground="#e5e7e6"
+                            BorderBrush="#3a3a3a"
+                            BorderThickness="1"
+                            Padding="10,0"
+                            Cursor="Hand"
+                            Click="BtnTogglePassword_Click"/>
+                    </Grid>
+
+                    <TextBlock Text="Pasta Brutos" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button
+                            Content="📁"
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource FolderButton}"
+                            Click="BtnRawFolderDirective_Click"/>
+                        <TextBox x:Name="TxtRawFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Pasta Diretriz Mensal" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button
+                            Content="📁"
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource FolderButton}"
+                            Click="BtnMonthlyDirectiveFolder_Click"/>
+                        <TextBox x:Name="TxtMonthlyDirectiveFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Pasta Diretriz Anual" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button
+                            Content="📁"
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource FolderButton}"
+                            Click="BtnAnnualDirectiveFolder_Click"/>
+                        <TextBox x:Name="TxtAnnualDirectiveFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Pasta Controle" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button
+                            Content="📁"
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource FolderButton}"
+                            Click="BtnControlFolder_Click"/>
+                        <TextBox x:Name="TxtControlFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Button
+            FontSize="15"
+            Content="← Voltar"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Style="{StaticResource SidebarButton}"
+            Padding="10,6"
+            Margin="20,20,0,0"
+            Click="BtnHome_click"/>
+
+        <Button
+            FontSize="15"
+            Content="💾 Salvar"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Style="{StaticResource SidebarButton}"
+            Padding="10,6"
+            Margin="0,20,20,0"
+            Click="BtnSave_Click"/>
 
     </Grid>
 </local:BaseView>

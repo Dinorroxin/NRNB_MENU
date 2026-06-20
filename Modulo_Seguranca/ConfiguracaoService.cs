@@ -4,6 +4,17 @@ namespace Modulo_Seguranca
 {
     public class ConfiguracaoService
     {
+
+        public void Salvar(Configuracao config)
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            string json = JsonSerializer.Serialize(config, options);
+
+            File.WriteAllText(path, json);
+        }
+
         public Configuracao Carregar()
         {
             try
@@ -34,43 +45,40 @@ namespace Modulo_Seguranca
 
         public List<string> Validar(Configuracao config)
         {
-                // Cria a lista erros
-                List<string> erros = [];
+            // Cria a lista erros
+            List<string> erros = [];
 
             // Adiciona um dicionário com as chaves e mensagens de erro para cada campo obrigatório
-            var fields = new Dictionary<string, string>
+            var fields = new List<(string Valor, string Mensagem)>
             {
-                {config.Vigiagua.Email, "Email do Vigiagua não informado"},
-                {config.Vigiagua.Senha, "Senha do Vigiagua não informada"},
-                {config.Vigiagua.PastaArquivosBrutosDiretriz, "Pasta de arquivos brutos da Diretriz não informada"},
-                {config.Vigiagua.PastaCumprimentoDaDiretrizMensal, "Pasta da Diretriz Mensal não informada"},
-                {config.Vigiagua.PastaCumprimentoDaDiretrizAnual, "Pasta da Diretriz Anual não informada"},
-                {config.Vigiagua.PastaArquivosBrutosControle, "Pasta de arquivos brutos do Controle não informada"},
-                {config.Vigiagua.PastaControle, "Pasta de saída do Controle não informada"},
+                (config.Vigiagua.Email, "Email do Vigiagua não informado"),
+                (config.Vigiagua.Senha, "Senha do Vigiagua não informada"),
+                (config.Vigiagua.PastaArquivosBrutos, "Pasta de arquivos brutos do Vigiagua não informada"),
+                (config.Vigiagua.PastaCumprimentoDaDiretrizMensal, "Pasta da Diretriz Mensal não informada"),
+                (config.Vigiagua.PastaCumprimentoDaDiretrizAnual, "Pasta da Diretriz Anual não informada"),
+                (config.Vigiagua.PastaControle, "Pasta de saída do Controle não informada"),
 
-                {config.Vigiar.PastaArquivosBrutosQueimadas, "Pasta de arquivos brutos do Queimadas não informada"},
-                {config.Vigiar.PastaQueimadas, "Pasta de saída do Queimadas não informada"},
-                {config.Vigiar.PastaArquivosBrutosIqAr, "Pasta de arquivos brutos do IqAr não informada"},
-                {config.Vigiar.PastaIqAr, "Pasta de saída do IqAr não informada"},
+                (config.Vigiar.PastaArquivosBrutos, "Pasta de arquivos brutos do Vigiar não informada"),
+                (config.Vigiar.PastaQueimadas, "Pasta de saída do Queimadas não informada"),
+                (config.Vigiar.PastaIqAr, "Pasta de saída do IqAr não informada"),
 
-                {config.Gal.Usuario, "Usuário do Gal não informado"},
-                {config.Gal.Senha, "Senha do Gal não informada"},
-                {config.Gal.Modulo, "Módulo do Gal não informado" },
-                {config.Gal.Laboratorio, "Laboratório do Gal não informado"},
-                {config.Gal.PastaArquivosBrutosAmostras, "Pasta de arquivos brutos do GAL não informada"},
-                {config.Gal.PastaAmostras, "Pasta de saída do GAL não informada"}
+                (config.Gal.Usuario, "Usuário do Gal não informado"),
+                (config.Gal.Senha, "Senha do Gal não informada"),
+                (config.Gal.Modulo, "Módulo do Gal não informado"),
+                (config.Gal.Laboratorio, "Laboratório do Gal não informado"),
+                (config.Gal.PastaArquivosBrutosAmostras, "Pasta de arquivos brutos do GAL não informada"),
+                (config.Gal.PastaAmostras, "Pasta de saída do GAL não informada")
             };
 
-                // Para cada índice em fields, se a chave for vazia, ele vai retornar o valor daquela chave que é a mensagem de erro
-                foreach (var i in fields)
-                {
-                    if (string.IsNullOrEmpty(i.Key))
-                    {
-                        erros.Add(i.Value);
-                    }
-                }
-                // Retorna a lista de erros
-                return erros;
+            // Para cada índice em fields, se a chave for vazia, ele vai retornar o valor daquela chave que é a mensagem de erro
+            foreach (var (valor, mensagem) in fields)
+            {
+                if (string.IsNullOrEmpty(valor))
+                    erros.Add(mensagem);
+            }
+
+            // Retorna a lista de erros
+            return erros;
             
         }
     }

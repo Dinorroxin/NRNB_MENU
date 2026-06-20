@@ -13,14 +13,6 @@
     WindowStartupLocation="CenterScreen"
     ResizeMode="CanMinimize"
     >
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Styles/AppStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
-
 
     <Grid Background="#0d0f0e">
         <Grid.RowDefinitions>

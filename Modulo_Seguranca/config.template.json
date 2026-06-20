@@ -1,20 +1,20 @@
+
+
 {
   "ExtensoesBloqueadas": [],
 
   "Vigiagua": {
     "Email": "",
     "Senha": "",
-    "PastaArquivosBrutosDiretriz": "",
+    "PastaArquivosBrutos": "",
     "PastaCumprimentoDaDiretrizMensal": "",
     "PastaCumprimentoDaDiretrizAnual": "",
-    "PastaArquivosBrutosControle": "",
     "PastaControle": ""
   },
 
   "Vigiar": {
-    "PastaArquivosBrutosQueimadas": "",
+    "PastaArquivosBrutos": "",
     "PastaQueimadas": "",
-    "PastaArquivosBrutosIqAr": "",
     "PastaIqAr": ""
   },
 

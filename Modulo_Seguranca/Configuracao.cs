@@ -6,10 +6,9 @@
         public const string UrlLogin = "https://sisagua.saude.gov.br/sisagua/paginaExterna.jsf";
         public string Email { get; set; } = string.Empty;   // string.Empty; Para não dar aviso de que a propriedade pode ser nula
         public string Senha { get; set; } = string.Empty;
-        public string PastaArquivosBrutosDiretriz { get; set; } = string.Empty;
+        public string PastaArquivosBrutos { get; set; } = string.Empty;
         public string PastaCumprimentoDaDiretrizMensal { get; set; } = string.Empty;
         public string PastaCumprimentoDaDiretrizAnual { get; set; } = string.Empty;
-        public string PastaArquivosBrutosControle { get; set; } = string.Empty;
         public string PastaControle { get; set; } = string.Empty;
     }
 
@@ -17,9 +16,8 @@
     {
         public const string UrlIqAr = "https://shiny.icict.fiocruz.br/alertarsaude/";
         public const string UrlBdQueimadas = "https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/#exportar-dados";
-        public string PastaArquivosBrutosQueimadas { get; set; } = string.Empty;
+        public string PastaArquivosBrutos { get; set; } = string.Empty;
         public string PastaQueimadas { get; set; } = string.Empty;
-        public string PastaArquivosBrutosIqAr { get; set; } = string.Empty;
         public string PastaIqAr { get; set; } = string.Empty;
     }
 

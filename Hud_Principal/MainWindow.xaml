@@ -53,11 +53,11 @@
         </Border>
 
         <Border
-    Grid.Row="1"
-    Grid.Column="0"
-    Background="#1a1a1a"
-    BorderBrush="#2e2e2e"
-    BorderThickness="0,0,1,0">
+            Grid.Row="1"
+            Grid.Column="0"
+            Background="#1a1a1a"
+            BorderBrush="#2e2e2e"
+            BorderThickness="0,0,1,0">
 
             <DockPanel>
 
@@ -75,7 +75,8 @@
                         TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ScrollViewer 
+                    VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,12,0,0">
 
                         <TextBlock 
@@ -103,13 +104,19 @@
                                 <TextBlock 
                                     Text="💧  Sisagua" 
                                     VerticalAlignment="Center"/>
-                                <TextBlock 
-                                    x:Name="SisaguaChevron" 
-                                    Text="  ∨"
-                                    Foreground="#6B7280" 
-                                    VerticalAlignment="Center"/>
+                                <Viewbox Width="12" Height="12" Margin="6,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Viewbox.RenderTransform>
+                                        <RotateTransform x:Name="SisaguaChevronRotation" Angle="180"/>
+                                    </Viewbox.RenderTransform>
+                                    <Path 
+                                        Data="M 0,3 L 6,9 L 12,3" 
+                                        Stroke="#6B7280" 
+                                        StrokeThickness="1.5"
+                                        StrokeLineJoin="Round"/>
+                                </Viewbox>
                             </StackPanel>
                         </Button>
+
                         <StackPanel x:Name="SisaguaSubmenu" Style="{StaticResource SubmenuPanel}">
                             <Button 
                                 Content="    Automação diretriz mensal"
@@ -134,11 +141,22 @@
                             Style="{StaticResource SidebarButton}"
                             Click="BtnGal_Click">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🧪  Gal" VerticalAlignment="Center"/>
-                                <TextBlock x:Name="GalChevron" Text="  ∨"
-                                   Foreground="#6B7280" VerticalAlignment="Center"/>
+                                <TextBlock 
+                                    Text="🧪  Gal" 
+                                    VerticalAlignment="Center"/>
+                                <Viewbox Width="12" Height="12" Margin="6,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Viewbox.RenderTransform>
+                                        <RotateTransform x:Name="GalChevronRotation" Angle="180"/>
+                                    </Viewbox.RenderTransform>
+                                    <Path
+                                        Data="M 0,3 L 6,9 L 12,3"
+                                        Stroke="#6B7280" 
+                                        StrokeThickness="1.5" 
+                                        StrokeLineJoin="Round"/>
+                                </Viewbox>
                             </StackPanel>
                         </Button>
+
                         <StackPanel x:Name="GalSubmenu" Style="{StaticResource SubmenuPanel}">
                             <Button 
                                 Content="    Amostras mensais"
@@ -169,11 +187,22 @@
                             Style="{StaticResource SidebarButton}"
                             Click="BtnIdaron_Click">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🌿  Idaron" VerticalAlignment="Center"/>
-                                <TextBlock x:Name="IdaronChevron" Text="  ∨"
-                                   Foreground="#6B7280" VerticalAlignment="Center"/>
+                                <TextBlock 
+                                    Text="🌿  Idaron" 
+                                    VerticalAlignment="Center"/>
+                                <Viewbox Width="12" Height="12" Margin="6,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Viewbox.RenderTransform>
+                                        <RotateTransform x:Name="IdaronChevronRotation" Angle="180"/>
+                                    </Viewbox.RenderTransform>
+                                    <Path 
+                                        Data="M 0,3 L 6,9 L 12,3"
+                                        Stroke="#6B7280" 
+                                        StrokeThickness="1.5" 
+                                        StrokeLineJoin="Round"/>
+                                </Viewbox>
                             </StackPanel>
                         </Button>
+
                         <StackPanel x:Name="IdaronSubmenu" Style="{StaticResource SubmenuPanel}">
                             <Button 
                                 Content="    Em desenvolvimento"
@@ -201,13 +230,13 @@
         
 
             <TextBlock Grid.Row="1" 
-           Grid.Column="1" 
-           VerticalAlignment="Bottom" 
-           HorizontalAlignment="Right" 
-           Margin="15" 
-           FontSize="13"
-           Foreground="AntiqueWhite"
-           Visibility="Visible">
+                Grid.Column="1" 
+                VerticalAlignment="Bottom" 
+                HorizontalAlignment="Right" 
+                Margin="15" 
+                FontSize="13"
+                Foreground="AntiqueWhite"
+                Visibility="Visible">
             <InlineUIContainer BaselineAlignment="Center">
                 <Image Source="/Assets/github-mark-white.png"
                 Height="16" Width="16"

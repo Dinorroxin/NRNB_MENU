@@ -1,6 +1,8 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
-using System.Diagnostics;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Navigation;
 
 
@@ -19,31 +21,36 @@ namespace Hud_Principal
         }
 
         // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez
-        private void ToggleSubmenu(StackPanel submenu)
+        private void ToggleSubmenu(StackPanel submenu, RotateTransform chevronRotation)
         {
-            if (submenu.MaxHeight == 0)
+            bool opening = submenu.MaxHeight == 0;
+
+            if (opening)
             {
                 submenu.Visibility = Visibility.Visible;
-                var anim = new System.Windows.Media.Animation.DoubleAnimation(0, 200, TimeSpan.FromSeconds(0.25));
+                var anim = new DoubleAnimation(0, 200, TimeSpan.FromSeconds(0.25));
                 submenu.BeginAnimation(FrameworkElement.MaxHeightProperty, anim);
             }
             else
             {
-                var anim = new System.Windows.Media.Animation.DoubleAnimation(200, 0, TimeSpan.FromSeconds(0.2));
+                var anim = new DoubleAnimation(200, 0, TimeSpan.FromSeconds(0.2));
                 anim.Completed += (s, e) => submenu.Visibility = Visibility.Collapsed;
                 submenu.BeginAnimation(FrameworkElement.MaxHeightProperty, anim);
             }
+
+            var rotateAnim = new DoubleAnimation(opening ? 0 : 180, TimeSpan.FromSeconds(0.25));
+            chevronRotation.BeginAnimation(RotateTransform.AngleProperty, rotateAnim);
         }
 
         // Informando que a função acima (ToggleSubmenu) estará nos ementos de id SisaguaSubmenu....
         private void BtnSisagua_Click(object sender, RoutedEventArgs e)
-            => ToggleSubmenu(SisaguaSubmenu);
+            => ToggleSubmenu(SisaguaSubmenu, SisaguaChevronRotation);
 
         private void BtnGal_Click(object sender, RoutedEventArgs e)
-            => ToggleSubmenu(GalSubmenu);
+            => ToggleSubmenu(GalSubmenu, GalChevronRotation);
 
         private void BtnIdaron_Click(object sender, RoutedEventArgs e)
-            => ToggleSubmenu(IdaronSubmenu);
+            => ToggleSubmenu(IdaronSubmenu, IdaronChevronRotation);
 
         // Lógica para navegação de links na página xaml
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

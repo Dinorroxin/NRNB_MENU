@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Hud_Principal.Views;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -14,10 +15,11 @@ namespace Hud_Principal
         {
             InitializeComponent();
             // Lista com os ids dos paineis
-            _panels = [HomePanel, ConfigPanel];
+            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel];
 
-            // Puxa a função para o view.ConfigPanel para voltar ao HomeView
+            // Puxa a função para o view para voltar ao HomeView
             ConfigPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            MonthlySisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
         }
 
         // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez
@@ -81,7 +83,10 @@ namespace Hud_Principal
             => ShowPanel(ConfigPanel);
 
         // Função para as setas para voltar ao homepage
-        private void BtnHome_click(object sender, RoutedEventArgs e)
+        private void BtnHome_Click(object sender, RoutedEventArgs e)
             => ShowPanel(HomePanel);
+
+        private void BtnMontlhySisagua_Click(object sender, RoutedEventArgs e)
+            => ShowPanel(MonthlySisaguaPanel);
     }
 }

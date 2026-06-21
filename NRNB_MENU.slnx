@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Itens de Solução/">
     <File Path=".gitignore" />
+    <File Path="README.md" />
   </Folder>
   <Project Path="conversor_de_arquivos/Conversor_de_Arquivos.csproj" />
   <Project Path="hud_principal/Hud_Principal.csproj" />

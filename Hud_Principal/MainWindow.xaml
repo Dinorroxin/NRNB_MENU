@@ -123,7 +123,8 @@
                                 HorizontalContentAlignment="Left"
                                 Padding="14,8" 
                                 FontSize="12" 
-                                Style="{StaticResource SidebarButton}"/>
+                                Style="{StaticResource SidebarButton}"
+                                Click="BtnMontlhySisagua_Click"/>
                             <Button 
                                 Content="    Automação diretriz anual"
                                 HorizontalContentAlignment="Left"
@@ -227,9 +228,15 @@
             Grid.Column="1"
             Grid.Row="1"
             Visibility="Collapsed"/>
-        
 
-            <TextBlock Grid.Row="1" 
+        <views:MonthlySisaguaView
+            x:Name="MonthlySisaguaPanel"
+            Grid.Column="1"
+            Grid.Row="1"
+            Visibility="Collapsed"/>
+
+
+        <TextBlock Grid.Row="1" 
                 Grid.Column="1" 
                 VerticalAlignment="Bottom" 
                 HorizontalAlignment="Right" 

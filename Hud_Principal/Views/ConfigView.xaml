@@ -97,7 +97,7 @@
             Style="{StaticResource SidebarButton}"
             Padding="10,6"
             Margin="20,20,0,0"
-            Click="BtnHome_click"/>
+            Click="BtnHome_Click"/>
 
         <Button
             FontSize="15"

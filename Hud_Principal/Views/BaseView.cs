@@ -8,7 +8,7 @@ namespace Hud_Principal.Views
     {
         public event EventHandler? RequestHome;
 
-        protected void BtnHome_click(object sender, EventArgs e)
+        protected void BtnHome_Click(object sender, RoutedEventArgs e)
         
             => RequestHome?.Invoke(this, EventArgs.Empty);
         

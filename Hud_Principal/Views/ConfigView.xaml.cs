@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using MessageBox = System.Windows.MessageBox;
 using TextBox = System.Windows.Controls.TextBox;
-using UserControl = System.Windows.Controls.UserControl;
 
 namespace Hud_Principal.Views
 {
@@ -37,39 +36,8 @@ namespace Hud_Principal.Views
             }
         }
 
-
-
-
-
-        //                              TESTE DE VALIDAÇÃO, VAI MUDAR FUTURAMENTE
-        private List<string> ValidarVigiagua()
-        {
-            var campos = new List<(string Valor, string Mensagem)>
-            {
-                (TxtEmail.Text, "Email do Vigiagua não informado"),
-                (TxtPassword.Password, "Senha do Vigiagua não informada"),
-                (TxtRawFolder.Text, "Pasta de arquivos brutos não informada"),
-                (TxtMonthlyDirectiveFolder.Text, "Pasta da Diretriz Mensal não informada"),
-                (TxtAnnualDirectiveFolder.Text, "Pasta da Diretriz Anual não informada"),
-                (TxtControlFolder.Text, "Pasta de saída do Controle não informada")
-            };
-
-            return campos
-                .Where(c => string.IsNullOrEmpty(c.Valor))
-                .Select(c => c.Mensagem)
-                .ToList();
-        }
-
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            var erros = ValidarVigiagua();
-
-            if (erros.Count > 0)
-            {
-                MessageBox.Show(string.Join("\n", erros), "Campos pendentes", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
             var service = new ConfiguracaoService();
             Configuracao config;
             try { config = service.Carregar(); }
@@ -85,14 +53,6 @@ namespace Hud_Principal.Views
             service.Salvar(config);
             MessageBox.Show("Configurações salvas com sucesso!");
         }
-
-
-
-
-
-
-
-
 
         private void BtnVigiaguaSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(VigiaguaSection);

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Playwright;
-using Modulo_Seguranca;
 
 namespace WebAutomation
 {

@@ -4,6 +4,7 @@
     public class ConfiguracaoVigiagua 
     {
         public const string UrlLogin = "https://sisagua.saude.gov.br/sisagua/paginaExterna.jsf";
+        public const string UrlDiretrizMensal = "https://sisagua.saude.gov.br/sisagua/paginas/seguro/relatorioDiretrizNacional/relDiretrizNacionalParametrosBasicos.jsf?faces-redirect=true";
         public string Email { get; set; } = string.Empty;   // string.Empty; Para não dar aviso de que a propriedade pode ser nula
         public string Senha { get; set; } = string.Empty;
         public string PastaArquivosBrutos { get; set; } = string.Empty;

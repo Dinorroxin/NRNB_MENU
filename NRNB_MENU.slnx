@@ -6,4 +6,5 @@
   <Project Path="conversor_de_arquivos/Conversor_de_Arquivos.csproj" />
   <Project Path="hud_principal/Hud_Principal.csproj" />
   <Project Path="Modulo_Seguranca/Modulo_Seguranca.csproj" />
+  <Project Path="WebAutomation/WebAutomation.csproj" Id="e13c3294-9db6-4ed4-afd6-5b004fc590a8" />
 </Solution>

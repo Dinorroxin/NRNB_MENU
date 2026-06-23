@@ -23,7 +23,8 @@ namespace WebAutomation
         public async Task<SisaguaDiretrizResult> BaixarRelatoriosMensaisAsync(
             string email,
             string senha,
-            string pastaDestino)
+            string pastaDestino
+            )
         {
             var result = new SisaguaDiretrizResult();
 
@@ -61,7 +62,7 @@ namespace WebAutomation
                 // 2. Hover no menu RELATÓRIOS e navega para a página de diretriz
                 var menuRelatorios = page.Locator("span:has-text('RELATÓRIOS')");
                 await menuRelatorios.HoverAsync();
-                await Task.Delay(1000);
+                await Task.Delay(500);
 
                 var linkDiretriz = page.Locator("a.ui-menuitem-link[href*='relDiretrizNacionalParametrosBasicos.jsf']");
                 string? href = await linkDiretriz.GetAttributeAsync("href");

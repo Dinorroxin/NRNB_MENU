@@ -85,13 +85,6 @@
                             Foreground="#6B7280" 
                             Margin="14,0,0,8"/>
 
-                        <Button 
-                            Content="📄  Conversor de arquivos"
-                            HorizontalContentAlignment="Left"
-                            Padding="14,10" 
-                            FontSize="13" 
-                            Style="{StaticResource SidebarButton}"/>
-
                         <!-- Sisagua -->
                         <Button 
                             x:Name="BtnSisagua"

@@ -87,6 +87,15 @@
                 Style="{StaticResource SidebarButton}"
                 Click="BtnStart_Click"/>
 
+            <TextBlock
+                x:Name="TxtStatus"
+                Text=""
+                FontSize="16"
+                Foreground="#b5b8b7"
+                TextAlignment="Center"
+                TextWrapping="Wrap"
+                Margin="0,15,0,0"/>
+
         </StackPanel>
 
     </Grid>

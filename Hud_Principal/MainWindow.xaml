@@ -123,7 +123,8 @@
                                 HorizontalContentAlignment="Left"
                                 Padding="14,8" 
                                 FontSize="12" 
-                                Style="{StaticResource SidebarButton}"/>
+                                Style="{StaticResource SidebarButton}"
+                                Click="BtnAnnualSisagua_Click"/>
                         </StackPanel>
 
                         <!-- GAL -->
@@ -228,6 +229,11 @@
             Grid.Row="1"
             Visibility="Collapsed"/>
 
+        <views:AnnualSisaguaView
+            x:Name="AnnualSisaguaPanel"
+            Grid.Column="1"
+            Grid.Row="1"
+            Visibility="Collapsed"/>
 
         <TextBlock Grid.Row="1" 
                 Grid.Column="1" 

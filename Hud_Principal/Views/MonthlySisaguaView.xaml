@@ -77,6 +77,22 @@
                 TextWrapping="Wrap"
                 Margin="0,0,0,5"/>
 
+            <TextBlock
+                Text="Selecionar anos:"
+                FontSize="16"
+                Foreground="#b5b8b7"
+                Margin="0,20,0,8"/>
+
+            <ListBox
+                x:Name="LstAnos"
+                SelectionMode="Multiple"
+                MaxHeight="100"
+                Background="#1a1a1a"
+                Foreground="#e5e7e6"
+                BorderBrush="#333"
+                FontSize="15"
+                Margin="0,0,0,10"/>
+
             <Button
                 x:Name="StartMonthlySisagua"
                 Content="Iniciar Processo"
@@ -85,7 +101,7 @@
                 Margin="0,20,0,0"
                 HorizontalAlignment="Center"
                 Style="{StaticResource SidebarButton}"
-                Click="BtnStart_Click"/>
+                Click="BtnStartMonthly_Click"/>
 
             <TextBlock
                 x:Name="TxtStatus"

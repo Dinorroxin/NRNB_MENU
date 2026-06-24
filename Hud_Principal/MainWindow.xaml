@@ -154,23 +154,12 @@
 
                         <StackPanel x:Name="GalSubmenu" Style="{StaticResource SubmenuPanel}">
                             <Button 
-                                Content="    Amostras mensais"
+                                Content="    Acompanhamento Mensal"
                                 HorizontalContentAlignment="Left"
                                 Padding="14,8" 
                                 FontSize="12" 
-                                Style="{StaticResource SidebarButton}"/>
-                            <Button 
-                                Content="    Amostras anuais"
-                                HorizontalContentAlignment="Left"
-                                Padding="14,8" 
-                                FontSize="12" 
-                                Style="{StaticResource SidebarButton}"/>
-                            <Button 
-                                Content="    Controle de SAA"
-                                HorizontalContentAlignment="Left"
-                                Padding="14,8" 
-                                FontSize="12" 
-                                Style="{StaticResource SidebarButton}"/>
+                                Style="{StaticResource SidebarButton}"
+                                Click="BtnMonthlyGal_CLick"/>
                         </StackPanel>
 
                         <!-- Idaron -->
@@ -231,6 +220,12 @@
 
         <views:AnnualSisaguaView
             x:Name="AnnualSisaguaPanel"
+            Grid.Column="1"
+            Grid.Row="1"
+            Visibility="Collapsed"/>
+
+        <views:MonthlyGalView
+            x:Name="MonthlyGalPanel"
             Grid.Column="1"
             Grid.Row="1"
             Visibility="Collapsed"/>

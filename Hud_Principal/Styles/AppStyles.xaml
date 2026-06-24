@@ -83,4 +83,15 @@
         <Setter Property="Cursor" Value="Hand"/>
     </Style>
 
+    <Style x:Key="FormFieldComboBox" TargetType="ComboBox">
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="Background" Value="#1f1f1f"/>
+        <Setter Property="Foreground" Value="#e5e7e6"/>
+        <Setter Property="BorderBrush" Value="#3a3a3a"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
 </ResourceDictionary>

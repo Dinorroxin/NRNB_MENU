@@ -29,8 +29,8 @@
         public string Senha { get; set; } = string.Empty;
         public string Modulo { get; set; } = string.Empty;
         public string Laboratorio { get; set; } = string.Empty;
-        public string PastaArquivosBrutosAmostras { get; set; } = string.Empty;
-        public string PastaAmostras { get; set; } = string.Empty;
+        public string PastaBrutaRelaotriosMensalGal { get; set; } = string.Empty;
+        public string PastaTratadaRelatorioMensalGal{ get; set; } = string.Empty;
     }
 
     public class Configuracao

@@ -1,5 +1,3 @@
-
-
 {
   "ExtensoesBloqueadas": [],
 
@@ -23,7 +21,6 @@
     "Senha": "",
     "Modulo": "",
     "Laboratorio": "",
-    "PastaArquivosBrutosAmostras": "",
-    "PastaAmostras": ""
+    "PastaBrutaRelatoriosMensalGal": ""
   }
 }

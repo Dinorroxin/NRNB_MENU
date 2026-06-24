@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-	<UseWindowsForms>true</UseWindowsForms>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Conversor_de_Arquivos\Conversor_de_Arquivos.csproj" />
-    <ProjectReference Include="..\Modulo_Seguranca\Modulo_Seguranca.csproj" />
-    <ProjectReference Include="..\WebAutomation\WebAutomation.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Conversor_de_Arquivos\Conversor_de_Arquivos.csproj" />
+		<ProjectReference Include="..\Modulo_Seguranca\Modulo_Seguranca.csproj" />
+		<ProjectReference Include="..\WebAutomation\WebAutomation.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Assets\github-mark-white.png" />
-    <Resource Include="Assets\Vigiagua_Logo.png" />
-    <Resource Include="Assets\Vigiar_Logo.png" />
-    <Resource Include="Assets\Vigidesastres_Logo.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Assets\github-mark-white.png" />
+		<Resource Include="Assets\Vigiagua_Logo.png" />
+		<Resource Include="Assets\Vigiar_Logo.png" />
+		<Resource Include="Assets\Vigidesastres_Logo.png" />
+	</ItemGroup>
 
 </Project>

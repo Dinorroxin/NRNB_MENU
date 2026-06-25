@@ -16,7 +16,6 @@ namespace Hud_Principal.Views
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            // Validação básica
             if (string.IsNullOrWhiteSpace(TxtDataInicio.Text) ||
                 string.IsNullOrWhiteSpace(TxtDataFim.Text) ||
                 string.IsNullOrWhiteSpace(TxtIbge.Text))
@@ -32,7 +31,7 @@ namespace Hud_Principal.Views
                 errors.Add(("", "Usuário do GAL não configurado."));
             if (string.IsNullOrWhiteSpace(config.Gal.Senha))
                 errors.Add(("", "Senha do GAL não configurada."));
-            if (string.IsNullOrWhiteSpace(config.Gal.PastaBrutaRelaotriosMensalGal))
+            if (string.IsNullOrWhiteSpace(config.Gal.PastaBrutaRelatoriosMensalGal))
                 errors.Add(("", "Pasta de download do GAL não configurada."));
 
             if (errors.Count > 0)
@@ -41,22 +40,32 @@ namespace Hud_Principal.Views
                 return;
             }
 
+            // Lê todos os valores de UI antes do Task.Run
+            string referencia = ((ComboBoxItem)CmbReferencia.SelectedItem).Content.ToString()!;
+            string dataInicio = TxtDataInicio.Text;
+            string dataFim = TxtDataFim.Text;
+            string ibge = TxtIbge.Text;
+            string usuario = config.Gal.Usuario;
+            string senha = config.Gal.Senha;
+            string modulo = config.Gal.Modulo;
+            string laboratorio = config.Gal.Laboratorio;
+            string pasta = config.Gal.PastaBrutaRelatoriosMensalGal;
+
             BtnStart.IsEnabled = false;
 
-            var referencia = ((ComboBoxItem)CmbReferencia.SelectedItem).Content.ToString()!;
             var progress = new Progress<string>(msg => TxtStatus.Text = msg);
 
             bool sucesso = await Task.Run(() =>
                 new GalMonthlyAutomation().BaixarRelatorioMensalAsync(
-                    config.Gal.Usuario,
-                    config.Gal.Senha,
-                    config.Gal.Modulo,
-                    config.Gal.Laboratorio,
-                    config.Gal.PastaBrutaRelaotriosMensalGal,
+                    usuario,
+                    senha,
+                    modulo,
+                    laboratorio,
+                    pasta,
                     referencia,
-                    TxtDataInicio.Text,
-                    TxtDataFim.Text,
-                    TxtIbge.Text,
+                    dataInicio,
+                    dataFim,
+                    ibge,
                     progress));
 
             TxtStatus.Text = sucesso

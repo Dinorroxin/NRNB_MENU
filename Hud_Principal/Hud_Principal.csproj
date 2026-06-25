@@ -22,4 +22,10 @@
 		<Resource Include="Assets\Vigidesastres_Logo.png" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Content Include="..\captcha_solver.exe">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
 </Project>

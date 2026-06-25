@@ -5,6 +5,8 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using MessageBox = System.Windows.MessageBox;
 using TextBox = System.Windows.Controls.TextBox;
 
+[assembly: System.Runtime.Versioning.SupportedOSPlatform("windows")]
+
 namespace Hud_Principal.Views
 {
     public partial class ConfigView : BaseView
@@ -29,6 +31,13 @@ namespace Hud_Principal.Views
                 TxtMonthlyDirectiveFolder.Text = config.Vigiagua.PastaCumprimentoDaDiretrizMensal;
                 TxtAnnualDirectiveFolder.Text = config.Vigiagua.PastaCumprimentoDaDiretrizAnual;
                 TxtControlFolder.Text = config.Vigiagua.PastaControle;
+
+                TxtGalUsuario.Text = config.Gal.Usuario;
+                TxtGalSenha.Password = config.Gal.Senha;
+                TxtGalModulo.Text = config.Gal.Modulo;
+                TxtGalLaboratorio.Text = config.Gal.Laboratorio;
+                TxtGalPastaBrutaRelatoriosMensal.Text = config.Gal.PastaBrutaRelatoriosMensalGal;
+                TxtGalPastaRelatoriosMensal.Text = config.Gal.PastaRelatoriosMensalGal;
             }
             catch
             {
@@ -50,12 +59,22 @@ namespace Hud_Principal.Views
             config.Vigiagua.PastaCumprimentoDaDiretrizAnual = TxtAnnualDirectiveFolder.Text;
             config.Vigiagua.PastaControle = TxtControlFolder.Text;
 
+            config.Gal.Usuario = TxtGalUsuario.Text;
+            config.Gal.Senha = TxtGalSenha.Password;
+            config.Gal.Modulo = TxtGalModulo.Text;
+            config.Gal.Laboratorio = TxtGalLaboratorio.Text;
+            config.Gal.PastaBrutaRelatoriosMensalGal = TxtGalPastaBrutaRelatoriosMensal.Text;
+            config.Gal.PastaRelatoriosMensalGal = TxtGalPastaRelatoriosMensal.Text;
+
             service.Salvar(config);
             MessageBox.Show("Configurações salvas com sucesso!");
         }
 
         private void BtnVigiaguaSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(VigiaguaSection);
+
+        private void BtnGalSection_Click(object sender, RoutedEventArgs e)
+            => ToggleSection(GalSection);
 
         private void ToggleSection(StackPanel section)
         {
@@ -70,6 +89,22 @@ namespace Hud_Principal.Views
                 var anim = new System.Windows.Media.Animation.DoubleAnimation(400, 0, TimeSpan.FromSeconds(0.2));
                 anim.Completed += (s, e) => section.Visibility = Visibility.Collapsed;
                 section.BeginAnimation(FrameworkElement.MaxHeightProperty, anim);
+            }
+        }
+
+        private void BtnToggleGalPassword_Click(object sender, RoutedEventArgs e)
+        {
+            if (TxtGalSenhaVisible.Visibility == Visibility.Collapsed)
+            {
+                TxtGalSenhaVisible.Text = TxtGalSenha.Password;
+                TxtGalSenhaVisible.Visibility = Visibility.Visible;
+                TxtGalSenha.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                TxtGalSenha.Password = TxtGalSenhaVisible.Text;
+                TxtGalSenha.Visibility = Visibility.Visible;
+                TxtGalSenhaVisible.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -101,10 +136,17 @@ namespace Hud_Principal.Views
         private void BtnControlFolder_Click(object sender, RoutedEventArgs e)
             => SelectFolder(TxtControlFolder);
 
+        private void BtnGalBrutaRelatoriosMensalFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtGalPastaBrutaRelatoriosMensal);
+
+        private void BtnGalRelatoriosMensalFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtGalPastaRelatoriosMensal);
+
+
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void SelectFolder(TextBox field)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
-
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 field.Text = dialog.SelectedPath;
         }

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Itens de Solução/">
     <File Path=".gitignore" />
+    <File Path="captcha_solver.py" />
     <File Path="README.md" />
   </Folder>
   <Project Path="conversor_de_arquivos/Conversor_de_Arquivos.csproj" />

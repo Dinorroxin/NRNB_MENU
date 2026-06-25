@@ -12,7 +12,6 @@
 			<PrivateAssets>none</PrivateAssets>
 			<IncludeAssets>runtime;build;native;contentfiles;analyzers;buildtransitive;compile</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Tesseract" Version="5.2.0" />
 	</ItemGroup>
 
 </Project>

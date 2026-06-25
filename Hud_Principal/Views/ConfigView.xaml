@@ -86,6 +86,66 @@
                     </DockPanel>
 
                 </StackPanel>
+
+                <Button
+                    x:Name="BtnGalSection"
+                    Content="🧪 GAL"
+                    HorizontalAlignment="Left"
+                    FontSize="25"
+                    Padding="14,10"
+                    Style="{StaticResource SidebarButton}"
+                    Click="BtnGalSection_Click"/>
+
+                <StackPanel x:Name="GalSection" Style="{StaticResource SubmenuPanel}" Margin="14,10,0,0">
+
+                    <TextBlock Text="Usuário" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <TextBox x:Name="TxtGalUsuario" Style="{StaticResource FormField}"/>
+
+                    <TextBlock Text="Senha" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <Grid>
+                        <PasswordBox x:Name="TxtGalSenha" Style="{StaticResource PasswordFormField}"/>
+                        <TextBox x:Name="TxtGalSenhaVisible" Style="{StaticResource FormField}" Visibility="Collapsed"/>
+                        <Button
+                            x:Name="BtnToggleGalPassword"
+                            Content="👁"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Stretch"
+                            FontSize="14"
+                            Background="#1f1f1f"
+                            Foreground="#e5e7e6"
+                            BorderBrush="#3a3a3a"
+                            BorderThickness="1"
+                            Padding="10,0"
+                            Cursor="Hand"
+                            Click="BtnToggleGalPassword_Click"/>
+                    </Grid>
+
+
+                    <TextBlock Text="Módulo" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <TextBox x:Name="TxtGalModulo" Style="{StaticResource FormField}"/>
+
+                    <TextBlock Text="Laboratório" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <TextBox x:Name="TxtGalLaboratorio" Style="{StaticResource FormField}"/>
+
+                    <TextBlock Text="Pasta Relatórios Brutos Mensal" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                Style="{StaticResource FolderButton}"
+                Click="BtnGalBrutaRelatoriosMensalFolder_Click"/>
+                        <TextBox x:Name="TxtGalPastaBrutaRelatoriosMensal"
+                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Pasta Relatórios Tratados Mensal" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                Style="{StaticResource FolderButton}"
+                Click="BtnGalRelatoriosMensalFolder_Click"/>
+                        <TextBox x:Name="TxtGalPastaRelatoriosMensal"
+                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
 

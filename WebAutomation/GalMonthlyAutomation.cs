@@ -1,8 +1,4 @@
 ﻿using Microsoft.Playwright;
-using System.Linq;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace WebAutomation
 {
@@ -23,7 +19,7 @@ namespace WebAutomation
             using var playwright = await Playwright.CreateAsync();
             await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
-                Headless = true,
+                Headless = false,
                 Args = new[]
                 {
                     "--ignore-certificate-errors",
@@ -50,20 +46,28 @@ namespace WebAutomation
                     await page.FillAsync("[name='login']", usuario);
                     await page.FillAsync("[name='senha']", senha);
 
-                    // Módulo
-                    await page.FillAsync("[name='modulo']", modulo);
-                    await page.Keyboard.PressAsync("Enter");
-                    await page.WaitForTimeoutAsync(1500);
+                    // Usuário e Senha
+                    await page.FillAsync("[name='login']", usuario);
+                    await page.FillAsync("[name='senha']", senha);
 
-                    // Laboratório (TAB → limpa → digita → Enter)
+                    // Módulo
+                    await page.ClickAsync("[name='modulo']");
+                    await page.WaitForTimeoutAsync(300);
+                    await page.Keyboard.TypeAsync(modulo);
+                    await page.WaitForTimeoutAsync(1000);
+                    await page.Keyboard.PressAsync("Enter");
+                    await page.WaitForTimeoutAsync(2500);
+
+                    // Laboratório — TAB para ir ao próximo campo, limpa e digita
                     await page.Keyboard.PressAsync("Tab");
                     await page.WaitForTimeoutAsync(500);
+                    await page.Keyboard.PressAsync("Control+A");
                     await page.Keyboard.PressAsync("Backspace");
                     await page.WaitForTimeoutAsync(300);
                     await page.Keyboard.TypeAsync(laboratorio);
-                    await page.WaitForTimeoutAsync(500);
+                    await page.WaitForTimeoutAsync(800);
                     await page.Keyboard.PressAsync("Enter");
-
+                    await page.WaitForTimeoutAsync(1000);
                     progress.Report($"Tentativa {tentativa} — clicando em Entrar...");
 
                     // Clica em Entrar para exibir o captcha
@@ -81,11 +85,13 @@ namespace WebAutomation
                     progress.Report($"Tentativa {tentativa} — captcha lido: {txtCaptcha}");
 
                     // Insere captcha
-                    var inputCap = await page.QuerySelectorAsync("//*[contains(text(), 'Informe o código')]/following::input[1]");
-                    await page.EvaluateAsync("(el, val) => el.value = val", new object[] { inputCap!, txtCaptcha });
+                    await page.ClickAsync("[name='ext-comp-1031']");
+                    await page.WaitForTimeoutAsync(300);
+                    await page.Keyboard.TypeAsync(txtCaptcha);
+                    await page.WaitForTimeoutAsync(500);
 
-                    // Confirmar
-                    await page.EvaluateAsync("document.querySelector(\"button[text()='Confirmar']\")?.click() ?? document.evaluate(\"//button[text()='Confirmar']\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue?.click()");
+                    // Confirmar — clica no botão via XPath
+                    await page.ClickAsync("xpath=//button[text()='Confirmar']");
                     await page.WaitForTimeoutAsync(5000);
 
                     // Verifica se login funcionou (campo login sumiu)
@@ -173,16 +179,30 @@ namespace WebAutomation
                     await page.WaitForTimeoutAsync(1000);
                 }
 
-                // Gerar PDF
                 progress.Report("Gerando PDF...");
                 var btnGerar = await contentFrame.QuerySelectorAsync("xpath=//button[text()='Gerar']");
                 await contentFrame.EvaluateAsync("el => el.click()", btnGerar);
 
-                // Nova aba com o PDF
-                var newPage = await context.WaitForPageAsync();
-                await newPage.WaitForSelectorAsync("xpath=//*[contains(text(), 'Município')]");
+                // Nova aba com o PDF — timeout maior para períodos longos
+                progress.Report("Aguardando nova aba...");
+                var newPage = await context.WaitForPageAsync(new BrowserContextWaitForPageOptions
+                {
+                    Timeout = 60000
+                });
 
-                // Imprime como PDF via Playwright (sem abrir visualizador)
+                progress.Report("Aguardando conteúdo carregar...");
+                await newPage.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions
+                {
+                    Timeout = 60000
+                });
+
+                await newPage.WaitForSelectorAsync("xpath=//*[contains(text(), 'Município')]", new PageWaitForSelectorOptions
+                {
+                    Timeout = 60000
+                });
+
+                // Imprime como PDF via Playwright
+                progress.Report("Gerando PDF...");
                 var pdfBytes = await newPage.PdfAsync(new PagePdfOptions
                 {
                     PrintBackground = true,
@@ -204,28 +224,93 @@ namespace WebAutomation
                 progress.Report($"Erro no fluxo pós-login: {ex.Message}");
                 return false;
             }
-        }
 
-        private static Task<string> ResolverCaptchaAsync(byte[] imgBytes, IProgress<string> progress)
+        }
+        private static async Task<string> ResolverCaptchaAsync(byte[] imgBytes, IProgress<string> progress)
         {
-            string tessDataPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
+            string tempImg = Path.Combine(Path.GetTempPath(), "captcha_temp.png");
+            await File.WriteAllBytesAsync(tempImg, imgBytes);
 
-            using var engine = new Tesseract.TesseractEngine(tessDataPath, "por", Tesseract.EngineMode.Default);
+            progress.Report($"Imagem salva em: {tempImg} | Existe: {File.Exists(tempImg)} | Tamanho: {imgBytes.Length}");
 
-            // Captcha é N,L,N,L,N — só alfanuméricos, sem espaços
-            engine.SetVariable("tessedit_char_whitelist", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            string solverPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "captcha_solver.exe");
 
-            using var img = Tesseract.Pix.LoadFromMemory(imgBytes);
-            using var page = engine.Process(img);
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = solverPath,
+                Arguments = $"\"{tempImg}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-            string texto = page.GetText()
-                .Replace(" ", "")
-                .Replace("\n", "")
-                .Trim()
-                .ToUpper();
+            using var process = System.Diagnostics.Process.Start(psi)!;
+            string resultado = await process.StandardOutput.ReadToEndAsync();
+            string erro = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
 
-            progress.Report($"OCR leu: {texto}");
-            return Task.FromResult(texto);
+            if (!string.IsNullOrWhiteSpace(erro))
+                progress.Report($"Erro solver: {erro}");
+
+            string texto = resultado.Trim().ToUpper();
+            progress.Report($"OCR leu: '{texto}'");
+            return texto;
         }
+
+        private static string ForcarPadrao(string texto)
+        {
+            // Remove caracteres não alfanuméricos
+            string limpo = new string(texto.Where(char.IsLetterOrDigit).ToArray());
+
+            if (limpo.Length != 5)
+                return limpo; // retorna como está se não tiver 5 chars
+
+            char[] resultado = limpo.ToCharArray();
+
+            // Posições 0,2,4 = número; posições 1,3 = letra
+            for (int i = 0; i < 5; i++)
+            {
+                if (i % 2 == 0) // deve ser número
+                {
+                    if (!char.IsDigit(resultado[i]))
+                    {
+                        // Tenta corrigir confusões comuns: O→0, I→1, S→5, B→8, Z→2
+                        resultado[i] = CorrigirParaNumero(resultado[i]);
+                    }
+                }
+                else // deve ser letra
+                {
+                    if (!char.IsLetter(resultado[i]))
+                    {
+                        // Tenta corrigir confusões comuns: 0→O, 1→I, 5→S, 8→B
+                        resultado[i] = CorrigirParaLetra(resultado[i]);
+                    }
+                }
+            }
+
+            return new string(resultado);
+        }
+
+        private static char CorrigirParaNumero(char c) => c switch
+        {
+            'O' or 'Q' => '0',
+            'I' or 'L' => '1',
+            'Z' => '2',
+            'S' => '5',
+            'B' => '8',
+            'G' => '6',
+            _ => '0' // fallback
+        };
+
+        private static char CorrigirParaLetra(char c) => c switch
+        {
+            '0' => 'O',
+            '1' => 'I',
+            '5' => 'S',
+            '8' => 'B',
+            '6' => 'G',
+            _ => 'A' // fallback
+        };
     }
 }

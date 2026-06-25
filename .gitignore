@@ -5,3 +5,8 @@
 *.suo
 
 **/config.json
+
+build/
+dist/
+*.spec
+captcha_solver.exe

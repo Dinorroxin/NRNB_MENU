@@ -29,6 +29,13 @@ namespace WebAutomation
             });
 
             var context = await browser.NewContextAsync();
+
+            // Suprime o window.print() nativo no nível do contexto.
+            // O GAL abre a aba do relatório com window.open() e dispara window.print()
+            // no onload — antes do WaitForPageAsync retornar. Registrar aqui garante
+            // que o override seja injetado em qualquer aba nova antes do onload executar.
+            await context.AddInitScriptAsync("window.print = () => {};");
+
             var page = await context.NewPageAsync();
 
             bool loginSucesso = false;
@@ -105,6 +112,9 @@ namespace WebAutomation
                     {
                         progress.Report($"Captcha incorreto — tentativa {tentativa}");
                         tentativa++;
+
+                        await page.GotoAsync("about:blank");
+                        await page.WaitForTimeoutAsync(500);
                     }
                 }
                 catch (Exception ex)
@@ -190,6 +200,9 @@ namespace WebAutomation
                     Timeout = 60000
                 });
 
+                // Neutraliza o window.print() automático da nova aba
+                await newPage.AddInitScriptAsync("window.print = () => {}");
+
                 progress.Report("Aguardando conteúdo carregar...");
                 await newPage.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions
                 {
@@ -201,7 +214,6 @@ namespace WebAutomation
                     Timeout = 60000
                 });
 
-                // Imprime como PDF via Playwright
                 progress.Report("Gerando PDF...");
                 var pdfBytes = await newPage.PdfAsync(new PagePdfOptions
                 {

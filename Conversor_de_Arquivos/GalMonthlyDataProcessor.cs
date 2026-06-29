@@ -68,7 +68,8 @@ namespace Conversor_de_Arquivos
                     $"Meses: {string.Join(", ", meses.Select(m => m.Abrev + "/" + m.Ano))}");
 
                 progress?.Report("Parseando municípios...");
-                var registros = ParsearMunicipios(linhasPdf, meses);
+                int numValores = meses.Count * 3; // e.g. 12 months → 36 values
+                var registros = ParsearMunicipios(linhasPdf, meses, numValores);
                 result.MunicipiosEncontrados = registros.Count;
 
                 progress?.Report($"Encontrados {registros.Count} municípios. Gerando linhas...");
@@ -106,7 +107,8 @@ namespace Conversor_de_Arquivos
                     .Select(g =>
                         string.Join(" ",
                             g.OrderBy(w => w.BoundingBox.Left)
-                             .Select(w => w.Text)))
+                             .Select(w => LimparTexto(w.Text))
+                             .Where(t => !string.IsNullOrWhiteSpace(t))))
                     .Where(l => !string.IsNullOrWhiteSpace(l));
 
                 allLines.AddRange(grupos);
@@ -146,11 +148,28 @@ namespace Conversor_de_Arquivos
 
         private static List<(string Municipio, int[] Valores)> ParsearMunicipios(
             List<string> linhas,
-            List<(string Abrev, string Nome, int Ano, int Ordem)> meses)
+            List<(string Abrev, string Nome, int Ano, int Ordem)> meses,
+            int numValores)
         {
-            var result    = new List<(string Municipio, int[] Valores)>();
-            string buffer = string.Empty;
-            bool inData   = false;
+            var result      = new List<(string Municipio, int[] Valores)>();
+            string preBuffer = string.Empty;   // text fragments before first pending record
+            bool inData      = false;
+
+            string? pendingMunicipio = null;
+            int[]?  pendingValores   = null;
+
+            void CommitPending()
+            {
+                if (pendingMunicipio is null) return;
+                string nome = CanonizarMunicipio(NormalizarNomeMunicipio(pendingMunicipio));
+                if (!string.IsNullOrWhiteSpace(nome)
+                    && !nome.Equals("TOTAL", StringComparison.OrdinalIgnoreCase))
+                {
+                    result.Add((nome, pendingValores!));
+                }
+                pendingMunicipio = null;
+                pendingValores   = null;
+            }
 
             foreach (var rawLinha in linhas)
             {
@@ -163,50 +182,70 @@ namespace Conversor_de_Arquivos
                     continue;
                 }
 
-
-                if (EhLinhaMeses(linha)) { buffer = string.Empty; continue; }
+                // Page N+1 month header — keep pendingMunicipio alive across page break;
+                // only reset the pre-data fragment accumulator.
+                if (EhLinhaMeses(linha)) { preBuffer = string.Empty; continue; }
 
                 if (EhLinhaIgnorada(linha)) continue;
 
                 var tokens = linha.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-                if (EhCabecalhoTotSatIns(tokens)) continue;
+                // TOT/SAT/INS sub-header. May carry a municipality name fragment at the
+                // right edge (e.g. "… TOT SAT IN ALTA FLORESTA") when PdfPig groups the
+                // column header and the first data-row name at the same Y-coordinate.
+                if (EhCabecalhoTotSatIns(tokens, out string fragmento))
+                {
+                    if (!string.IsNullOrWhiteSpace(fragmento))
+                    {
+                        CommitPending();
+                        preBuffer = fragmento;
+                    }
+                    continue;
+                }
 
                 int firstNum = EncontrarPrimeiroNumero(tokens);
 
                 if (firstNum == -1)
                 {
-
+                    // Name-only line: no numeric token found.
                     if (!tokens.Any(t => t.Any(char.IsLetter))) continue;
 
-                    buffer = buffer.Length == 0
-                        ? linha
-                        : buffer + " " + linha;
+                    if (pendingMunicipio != null)
+                    {
+                        // Continuation of the pending municipality (e.g. "D'OESTE" after
+                        // "ALTA FLORESTA 12 7 5…"). Extend the name instead of orphaning it.
+                        pendingMunicipio = (pendingMunicipio + " " + linha.Trim()).Trim();
+                    }
+                    else
+                    {
+                        preBuffer = preBuffer.Length == 0
+                            ? linha.Trim()
+                            : preBuffer + " " + linha.Trim();
+                    }
                     continue;
                 }
+
+                // Line with numbers: commit the previous pending and open a new one.
+                CommitPending();
 
                 string thisName = firstNum > 0
                     ? string.Join(" ", tokens.Take(firstNum)).Trim()
                     : string.Empty;
 
                 string fullName;
-                if (buffer.Length > 0)
+                if (preBuffer.Length > 0)
                 {
                     fullName = thisName.Length > 0
-                        ? (buffer.Trim() + " " + thisName).Trim()
-                        : buffer.Trim();
+                        ? (preBuffer.Trim() + " " + thisName).Trim()
+                        : preBuffer.Trim();
+                    preBuffer = string.Empty;
                 }
                 else
                 {
                     fullName = thisName;
                 }
 
-                buffer = string.Empty;
-
-                fullName = fullName.Replace("D''", "D'").Trim();
-
                 if (string.IsNullOrWhiteSpace(fullName)) continue;
-                if (fullName.Equals("TOTAL", StringComparison.OrdinalIgnoreCase)) continue;
 
                 var nums = new List<int>();
                 for (int i = firstNum; i < tokens.Length; i++)
@@ -215,11 +254,54 @@ namespace Conversor_de_Arquivos
                         nums.Add(v);
                 }
 
-                if (nums.Count >= 21)
-                    result.Add((fullName, [.. nums.Take(21)]));
+                if (nums.Count >= numValores)
+                {
+                    pendingMunicipio = fullName;
+                    pendingValores   = [.. nums.Take(numValores)];
+                }
             }
 
+            // Flush the last municipality (not followed by another numbers-line).
+            CommitPending();
+
             return result;
+        }
+
+        // Matches the parsed municipality name against every entry in RondoniaRegionais.RegionalMap
+        // and returns the canonical form if a sufficiently strong match is found.
+        // Score = matched_words² / canonical_word_count.  Threshold ≥ 1.0 avoids false positives
+        // from orphaned single-word fragments (e.g. a stray "D'OESTE").
+        private static string CanonizarMunicipio(string nomeParsed)
+        {
+            if (string.IsNullOrWhiteSpace(nomeParsed)) return nomeParsed;
+
+            // Normalise for comparison: remove accents, upper-case, replace ' and - with space.
+            static string Norm(string s) =>
+                RemoverAcentos(s).ToUpperInvariant()
+                    .Replace('\'', ' ').Replace('-', ' ');
+
+            var parsedWords = new HashSet<string>(
+                Norm(nomeParsed).Split(' ', StringSplitOptions.RemoveEmptyEntries),
+                StringComparer.OrdinalIgnoreCase);
+
+            if (parsedWords.Count == 0) return nomeParsed;
+
+            string? bestKey  = null;
+            double  bestScore = 0;
+
+            foreach (var (key, _) in RondoniaRegionais.RegionalMap)
+            {
+                string[] keyWords = Norm(key)
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                int matched = keyWords.Count(w => parsedWords.Contains(w));
+                if (matched == 0) continue;
+
+                double score = (double)(matched * matched) / keyWords.Length;
+                if (score > bestScore) { bestScore = score; bestKey = key; }
+            }
+
+            return bestKey != null && bestScore >= 1.0 ? bestKey : nomeParsed;
         }
 
         private static bool EhLinhaMeses(string linha)
@@ -251,16 +333,41 @@ namespace Conversor_de_Arquivos
             linha.Contains("lacen.ro.gov.br",              StringComparison.OrdinalIgnoreCase) ||
             linha.Contains("@");  // qualquer endereço de e-mail
 
-        private static bool EhCabecalhoTotSatIns(string[] tokens)
+        // Returns true when the line is the TOT/SAT/INS column sub-header.
+        // Accepts "IN" as a truncated form of "INS" (PDF clips the rightmost column label).
+        // Requires at least 3 such tokens — avoids false-positive on municipality words.
+        // 'fragmento' receives any letter-containing tokens that appear AFTER the last
+        // TSI token (municipality name text caught on the same PDF line as the header).
+        private static bool EhCabecalhoTotSatIns(string[] tokens, out string fragmento)
         {
-            if (tokens.Length == 0) return false;
-            foreach (var t in tokens)
+            fragmento = string.Empty;
+            if (tokens.Length < 3) return false;
+
+            static bool IsTsi(string t) =>
+                t.Equals("TOT", StringComparison.OrdinalIgnoreCase) ||
+                t.Equals("SAT", StringComparison.OrdinalIgnoreCase) ||
+                t.Equals("INS", StringComparison.OrdinalIgnoreCase) ||
+                t.Equals("IN",  StringComparison.OrdinalIgnoreCase);
+
+            int tsiCount  = 0;
+            int lastTsiIdx = -1;
+            for (int i = 0; i < tokens.Length; i++)
             {
-                if (!t.Equals("TOT", StringComparison.OrdinalIgnoreCase)
-                    && !t.Equals("SAT", StringComparison.OrdinalIgnoreCase)
-                    && !t.Equals("INS", StringComparison.OrdinalIgnoreCase))
-                    return false;
+                if (IsTsi(tokens[i])) { tsiCount++; lastTsiIdx = i; }
             }
+
+            if (tsiCount < 3) return false;
+
+            // Collect any letter-bearing tokens after the last TSI token.
+            if (lastTsiIdx < tokens.Length - 1)
+            {
+                var nameTokens = new List<string>();
+                for (int i = lastTsiIdx + 1; i < tokens.Length; i++)
+                    if (tokens[i].Any(char.IsLetter)) nameTokens.Add(tokens[i]);
+                if (nameTokens.Count > 0)
+                    fragmento = string.Join(" ", nameTokens);
+            }
+
             return true;
         }
 
@@ -405,6 +512,69 @@ namespace Conversor_de_Arquivos
                 ws.Cells[ws.Dimension.Address].AutoFitColumns();
 
             await pkg.SaveAsAsync(new FileInfo(pathMestre));
+        }
+
+        // Strips control characters (including \n, \r) from a single PDF word.
+        private static string LimparTexto(string texto)
+        {
+            if (string.IsNullOrEmpty(texto)) return texto;
+            var sb = new StringBuilder(texto.Length);
+            foreach (char c in texto)
+                if (!char.IsControl(c)) sb.Append(c);
+            return sb.ToString();
+        }
+
+        // Normalizes municipality names:
+        //  • strips control chars
+        //  • collapses any run of apostrophe-like characters (with optional spaces between
+        //    them) into a single ASCII apostrophe — handles D''OESTE, D"OESTE, D ' ' OESTE
+        //  • removes the space that sometimes appears right before or after the apostrophe
+        private static string NormalizarNomeMunicipio(string nome)
+        {
+            var sb        = new StringBuilder(nome.Length);
+            bool prevApas = false;   // last meaningful char was an apostrophe
+            bool prevSpc  = false;   // last char appended was a space
+
+            foreach (char c in nome)
+            {
+                if (char.IsControl(c)) { prevApas = false; prevSpc = false; continue; }
+
+                bool isApas = c is '\'' or '"'
+                    or '‘' or '’'   // ' '
+                    or '“' or '”'   // " "
+                    or '′' or '″'   // ′ ″
+                    or 'ʼ' or '´';  // ʼ ´
+
+                if (isApas)
+                {
+                    // Remove the trailing space that was written before this apostrophe
+                    // (handles "NOME D 'OESTE" → "NOME D'OESTE").
+                    if (prevSpc && sb.Length > 0 && sb[sb.Length - 1] == ' ')
+                        sb.Length--;
+
+                    if (!prevApas)
+                        sb.Append('\'');
+
+                    prevApas = true;
+                    prevSpc  = false;
+                }
+                else if (c == ' ')
+                {
+                    if (!prevApas)  // skip space immediately after an apostrophe
+                    {
+                        sb.Append(' ');
+                        prevSpc = true;
+                    }
+                }
+                else
+                {
+                    sb.Append(c);
+                    prevApas = false;
+                    prevSpc  = false;
+                }
+            }
+
+            return sb.ToString().Trim();
         }
 
         private static string RemoverAcentos(string texto)

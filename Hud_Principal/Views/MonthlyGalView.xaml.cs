@@ -1,19 +1,79 @@
 ﻿using Conversor_de_Arquivos;
 using Modulo_Seguranca;
+using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using WebAutomation;
+using WpfBrushes = System.Windows.Media.Brushes;
+using WpfTextBox = System.Windows.Controls.TextBox;
 
 namespace Hud_Principal.Views
 {
     public partial class MonthlyGalView : BaseView
     {
+        private bool _formattingDate;
+
         public MonthlyGalView()
         {
             InitializeComponent();
             TxtDataInicio.Text = $"01/01/{DateTime.Now.Year}";
-            TxtDataFim.Text = DateTime.Now.ToString("dd/MM/yyyy");
+            TxtDataFim.Text    = DateTime.Now.ToString("dd/MM/yyyy");
+        }
+
+        // ── Date mask helpers ───────────────────────────────────────────────────
+
+        // Block every non-digit character; "/" is auto-inserted by Date_TextChanged.
+        private void Date_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (!e.Text.All(char.IsDigit))
+                e.Handled = true;
+        }
+
+        // After each keystroke, strip non-digits and rebuild "dd/MM/yyyy" layout.
+        private void Date_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (_formattingDate) return;
+            var tb = (WpfTextBox)sender;
+
+            string digits = new string(tb.Text.Where(char.IsDigit).ToArray());
+            if (digits.Length > 8) digits = digits[..8];
+
+            string formatted = digits.Length switch
+            {
+                0 or 1 or 2 => digits,
+                3 or 4       => digits[..2] + "/" + digits[2..],
+                _            => digits[..2] + "/" + digits[2..4] + "/" + digits[4..]
+            };
+
+            _formattingDate = true;
+            int caret = tb.CaretIndex;
+            tb.Text = formatted;
+            // Keep caret roughly in place, advancing past slashes that were just inserted
+            int newCaret = Math.Min(caret, formatted.Length);
+            while (newCaret < formatted.Length && formatted[newCaret] == '/') newCaret++;
+            tb.CaretIndex = newCaret;
+            _formattingDate = false;
+
+            // Clear any previous error highlight while the user is still typing
+            tb.ClearValue(System.Windows.Controls.Control.BorderBrushProperty);
+        }
+
+        // Validate the final date when the field loses focus.
+        private void Date_LostFocus(object sender, RoutedEventArgs e)
+        {
+            var tb = (WpfTextBox)sender;
+            if (!DateTime.TryParseExact(tb.Text, "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+            {
+                tb.BorderBrush = WpfBrushes.Red;
+                TxtStatus.Text = $"Data inválida: '{tb.Text}'. Use o formato dd/MM/aaaa.";
+            }
+            else
+            {
+                tb.ClearValue(System.Windows.Controls.Control.BorderBrushProperty);
+            }
         }
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)

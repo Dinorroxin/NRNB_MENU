@@ -80,6 +80,21 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
+                <!-- Aviso de período -->
+                <Border Background="#1a1200" BorderBrush="#4a3800" BorderThickness="1"
+                        CornerRadius="6" Padding="14,10" Margin="0,0,0,24">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚠" Foreground="#f5a623" FontSize="15"
+                                   VerticalAlignment="Top" Margin="0,0,10,0"/>
+                        <TextBlock TextWrapping="Wrap" Foreground="#d4a84b" FontSize="12">
+                            <Run FontWeight="SemiBold">Atenção:</Run>
+                            <Run> Devido ao mau funcionamento e otimização do GAL, realizar a coleta somente de </Run>
+                            <Run FontWeight="SemiBold">1 ano por processo</Run>
+                            <Run>. Caso contrário, a automação poderá não realizar a coleta corretamente e com todos os dados.</Run>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
                 <!-- Parâmetros -->
                 <TextBlock Text="PARÂMETROS"
                            FontSize="11" Foreground="#555555"
@@ -103,13 +118,21 @@
                         <TextBlock Text="Data Início" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
                         <TextBox x:Name="TxtDataInicio"
                                  Width="140" HorizontalAlignment="Left"
-                                 Style="{StaticResource FormField}"/>
+                                 MaxLength="10"
+                                 Style="{StaticResource FormField}"
+                                 PreviewTextInput="Date_PreviewTextInput"
+                                 TextChanged="Date_TextChanged"
+                                 LostFocus="Date_LostFocus"/>
                     </StackPanel>
                     <StackPanel>
                         <TextBlock Text="Data Fim" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
                         <TextBox x:Name="TxtDataFim"
                                  Width="140" HorizontalAlignment="Left"
-                                 Style="{StaticResource FormField}"/>
+                                 MaxLength="10"
+                                 Style="{StaticResource FormField}"
+                                 PreviewTextInput="Date_PreviewTextInput"
+                                 TextChanged="Date_TextChanged"
+                                 LostFocus="Date_LostFocus"/>
                     </StackPanel>
                 </StackPanel>
 

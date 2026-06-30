@@ -41,6 +41,46 @@ O `captcha_solver.exe` deve ficar na **mesma pasta** do `NRNB_MENU.exe`.
 
 ---
 
+## Processamento do Relatório GAL (pdfplumber)
+
+O módulo de acompanhamento mensal GAL extrai dados do PDF usando `pdfplumber` (Python). O extrator é distribuído como `gal_extract.exe` — gerado via PyInstaller e **não está no repositório** (arquivo grande).
+
+### Como gerar o `gal_extract.exe`
+
+**Pré-requisitos:** Python instalado na máquina de desenvolvimento.
+
+**1. Instale as dependências:**
+```
+pip install pdfplumber pyinstaller
+```
+
+**2. Compile o extrator:**
+```
+python -m PyInstaller --onefile gal_extract.py
+```
+
+**3. Copie o exe gerado para a raiz do projeto:**
+```
+copy dist\gal_extract.exe gal_extract.exe
+```
+
+**4. Rebuilde a solution no Visual Studio.**
+
+O build detecta automaticamente se `gal_extract.exe` existe e o copia para a pasta de saída. Se o `.exe` não estiver presente, copia o `gal_extract.py` como fallback (exige Python instalado na máquina alvo).
+
+### Distribuição
+
+Ao distribuir o programa para a equipe, inclua os três arquivos juntos:
+```
+NRNB_MENU.exe
+captcha_solver.exe
+gal_extract.exe
+```
+
+O `gal_extract.exe` deve ficar na **mesma pasta** do `NRNB_MENU.exe`. O build já copia o arquivo automaticamente.
+
+---
+
 ## Sobre o config.json
 
 **Localização real do arquivo, durante desenvolvimento:**

@@ -15,13 +15,14 @@ namespace Hud_Principal
         {
             InitializeComponent();
             // Lista com os ids dos paineis
-            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, MonthlyGalPanel];
+            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel];
 
             // Puxa a função para o view para voltar ao HomeView
-            ConfigPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
-            MonthlySisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
-            AnnualSisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
-            MonthlyGalPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            ConfigPanel.RequestHome            += (s, e) => ShowPanel(HomePanel);
+            MonthlySisaguaPanel.RequestHome    += (s, e) => ShowPanel(HomePanel);
+            AnnualSisaguaPanel.RequestHome     += (s, e) => ShowPanel(HomePanel);
+            MonthlyGalPanel.RequestHome        += (s, e) => ShowPanel(HomePanel);
+            VigiarFocosCalorPanel.RequestHome  += (s, e) => ShowPanel(HomePanel);
         }
 
         // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez
@@ -96,5 +97,11 @@ namespace Hud_Principal
 
         private void BtnMonthlyGal_CLick(object sender, RoutedEventArgs e)
             => ShowPanel(MonthlyGalPanel);
+
+        private void BtnVigiar_Click(object sender, RoutedEventArgs e)
+            => ToggleSubmenu(VigiarSubmenu, VigiarChevronRotation);
+
+        private void BtnFocosCalor_Click(object sender, RoutedEventArgs e)
+            => ShowPanel(VigiarFocosCalorPanel);
     }
 }

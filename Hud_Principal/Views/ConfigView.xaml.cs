@@ -32,6 +32,10 @@ namespace Hud_Principal.Views
                 TxtAnnualDirectiveFolder.Text = config.Vigiagua.PastaCumprimentoDaDiretrizAnual;
                 TxtControlFolder.Text = config.Vigiagua.PastaControle;
 
+                TxtVigiarPastaQueimadas.Text     = config.Vigiar.PastaQueimadas;
+                TxtVigiarPastaArquivosBrutos.Text = config.Vigiar.PastaArquivosBrutos;
+                TxtVigiarPastaIqAr.Text           = config.Vigiar.PastaIqAr;
+
                 TxtGalUsuario.Text = config.Gal.Usuario;
                 TxtGalSenha.Password = config.Gal.Senha;
                 TxtGalModulo.Text = config.Gal.Modulo;
@@ -59,6 +63,10 @@ namespace Hud_Principal.Views
             config.Vigiagua.PastaCumprimentoDaDiretrizAnual = TxtAnnualDirectiveFolder.Text;
             config.Vigiagua.PastaControle = TxtControlFolder.Text;
 
+            config.Vigiar.PastaQueimadas      = TxtVigiarPastaQueimadas.Text;
+            config.Vigiar.PastaArquivosBrutos = TxtVigiarPastaArquivosBrutos.Text;
+            config.Vigiar.PastaIqAr           = TxtVigiarPastaIqAr.Text;
+
             config.Gal.Usuario = TxtGalUsuario.Text;
             config.Gal.Senha = TxtGalSenha.Password;
             config.Gal.Modulo = TxtGalModulo.Text;
@@ -75,6 +83,18 @@ namespace Hud_Principal.Views
 
         private void BtnGalSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(GalSection);
+
+        private void BtnVigiarSection_Click(object sender, RoutedEventArgs e)
+            => ToggleSection(VigiarSection);
+
+        private void BtnVigiarQueimadasFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigiarPastaQueimadas);
+
+        private void BtnVigiarArquivosBrutosFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigiarPastaArquivosBrutos);
+
+        private void BtnVigiarIqArFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigiarPastaIqAr);
 
         private void ToggleSection(StackPanel section)
         {

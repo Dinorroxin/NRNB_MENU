@@ -146,6 +146,47 @@
                     </DockPanel>
 
                 </StackPanel>
+
+                <Button
+                    x:Name="BtnVigiarSection"
+                    Content="🔥 Vigiar"
+                    HorizontalAlignment="Left"
+                    FontSize="25"
+                    Padding="14,10"
+                    Style="{StaticResource SidebarButton}"
+                    Click="BtnVigiarSection_Click"/>
+
+                <StackPanel x:Name="VigiarSection" Style="{StaticResource SubmenuPanel}" Margin="14,10,0,0">
+
+                    <TextBlock Text="Pasta Queimadas" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                                Style="{StaticResource FolderButton}"
+                                Click="BtnVigiarQueimadasFolder_Click"/>
+                        <TextBox x:Name="TxtVigiarPastaQueimadas"
+                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Pasta Arquivos Brutos" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                                Style="{StaticResource FolderButton}"
+                                Click="BtnVigiarArquivosBrutosFolder_Click"/>
+                        <TextBox x:Name="TxtVigiarPastaArquivosBrutos"
+                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Pasta IQAr" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                                Style="{StaticResource FolderButton}"
+                                Click="BtnVigiarIqArFolder_Click"/>
+                        <TextBox x:Name="TxtVigiarPastaIqAr"
+                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                </StackPanel>
+
             </StackPanel>
         </ScrollViewer>
 

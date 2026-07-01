@@ -188,12 +188,47 @@
                         </Button>
 
                         <StackPanel x:Name="IdaronSubmenu" Style="{StaticResource SubmenuPanel}">
-                            <Button 
+                            <Button
                                 Content="    Em desenvolvimento"
                                 HorizontalContentAlignment="Left"
-                                Padding="14,8" 
-                                FontSize="12" 
+                                Padding="14,8"
+                                FontSize="12"
                                 Style="{StaticResource SidebarButton}"/>
+                        </StackPanel>
+
+                        <!-- Vigiar -->
+                        <Button
+                            x:Name="BtnVigiar"
+                            HorizontalContentAlignment="Left"
+                            Padding="14,10"
+                            FontSize="13"
+                            Style="{StaticResource SidebarButton}"
+                            Click="BtnVigiar_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock
+                                    Text="🔥  Vigiar"
+                                    VerticalAlignment="Center"/>
+                                <Viewbox Width="12" Height="12" Margin="6,0,0,0" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                    <Viewbox.RenderTransform>
+                                        <RotateTransform x:Name="VigiarChevronRotation" Angle="180"/>
+                                    </Viewbox.RenderTransform>
+                                    <Path
+                                        Data="M 0,3 L 6,9 L 12,3"
+                                        Stroke="#6B7280"
+                                        StrokeThickness="1.5"
+                                        StrokeLineJoin="Round"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Button>
+
+                        <StackPanel x:Name="VigiarSubmenu" Style="{StaticResource SubmenuPanel}">
+                            <Button
+                                Content="    Focos de Calor"
+                                HorizontalContentAlignment="Left"
+                                Padding="14,8"
+                                FontSize="12"
+                                Style="{StaticResource SidebarButton}"
+                                Click="BtnFocosCalor_Click"/>
                         </StackPanel>
 
                     </StackPanel>
@@ -226,6 +261,12 @@
 
         <views:MonthlyGalView
             x:Name="MonthlyGalPanel"
+            Grid.Column="1"
+            Grid.Row="1"
+            Visibility="Collapsed"/>
+
+        <views:VigiarFocosCalorView
+            x:Name="VigiarFocosCalorPanel"
             Grid.Column="1"
             Grid.Row="1"
             Visibility="Collapsed"/>

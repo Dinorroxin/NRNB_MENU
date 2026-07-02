@@ -107,6 +107,8 @@ namespace Conversor_de_Arquivos
                 ws.Cells[row, 7].Value = qualidade;
             }
 
+            ws.Cells[ws.Dimension.Address].AutoFitColumns();
+
             await pkg.SaveAsAsync(fileInfo);
 
             string resumo = $"Master atualizado: {rows.Count} linha(s) gravada(s).";

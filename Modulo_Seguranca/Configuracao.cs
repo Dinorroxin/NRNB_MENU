@@ -26,7 +26,7 @@
     {
         public const string UrlLogin = "https://gal.rondonia.sus.gov.br";
         public string Usuario { get; set; } = string.Empty;
-        public string Senha { get; set; } = string.Empty;
+        public string Senha { get; set; } = string.Empty;   
         public string Modulo { get; set; } = string.Empty;
         public string Laboratorio { get; set; } = string.Empty;
         public string PastaBrutaRelatoriosMensalGal { get; set; } = string.Empty;

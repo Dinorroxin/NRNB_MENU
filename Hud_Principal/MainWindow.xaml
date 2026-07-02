@@ -229,6 +229,13 @@
                                 FontSize="12"
                                 Style="{StaticResource SidebarButton}"
                                 Click="BtnFocosCalor_Click"/>
+                            <Button
+                                Content="    Qualidade do Ar (IQAr)"
+                                HorizontalContentAlignment="Left"
+                                Padding="14,8"
+                                FontSize="12"
+                                Style="{StaticResource SidebarButton}"
+                                Click="BtnIqAr_Click"/>
                         </StackPanel>
 
                     </StackPanel>
@@ -267,6 +274,12 @@
 
         <views:VigiarFocosCalorView
             x:Name="VigiarFocosCalorPanel"
+            Grid.Column="1"
+            Grid.Row="1"
+            Visibility="Collapsed"/>
+
+        <views:VigiarIqArView
+            x:Name="VigiarIqArPanel"
             Grid.Column="1"
             Grid.Row="1"
             Visibility="Collapsed"/>

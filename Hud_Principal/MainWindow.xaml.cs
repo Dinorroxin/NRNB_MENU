@@ -15,7 +15,7 @@ namespace Hud_Principal
         {
             InitializeComponent();
             // Lista com os ids dos paineis
-            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel];
+            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel];
 
             // Puxa a função para o view para voltar ao HomeView
             ConfigPanel.RequestHome            += (s, e) => ShowPanel(HomePanel);
@@ -23,6 +23,7 @@ namespace Hud_Principal
             AnnualSisaguaPanel.RequestHome     += (s, e) => ShowPanel(HomePanel);
             MonthlyGalPanel.RequestHome        += (s, e) => ShowPanel(HomePanel);
             VigiarFocosCalorPanel.RequestHome  += (s, e) => ShowPanel(HomePanel);
+            VigiarIqArPanel.RequestHome        += (s, e) => ShowPanel(HomePanel);
         }
 
         // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez
@@ -103,5 +104,8 @@ namespace Hud_Principal
 
         private void BtnFocosCalor_Click(object sender, RoutedEventArgs e)
             => ShowPanel(VigiarFocosCalorPanel);
+
+        private void BtnIqAr_Click(object sender, RoutedEventArgs e)
+            => ShowPanel(VigiarIqArPanel);
     }
 }

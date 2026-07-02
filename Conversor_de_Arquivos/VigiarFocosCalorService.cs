@@ -5,7 +5,6 @@ namespace Conversor_de_Arquivos
 {
     public class VigiarFocosCalorService
     {
-        private const int LOTE_MAXIMO                 = 50;
         private const int DELAY_ENTRE_CHAMADAS_MS     = 400;
         private const int ANO_INICIAL_CARGA_HISTORICA = 2021;
 
@@ -37,13 +36,12 @@ namespace Conversor_de_Arquivos
             }
 
             // 4. Report initial summary
-            var batch = pending.Take(LOTE_MAXIMO).ToList();
-            progress.Report(FormatResumo(pending, batch));
+            progress.Report(FormatResumo(pending));
 
-            // 5. Process batch
-            for (int i = 0; i < batch.Count; i++)
+            // 5. Process all pending weeks
+            for (int i = 0; i < pending.Count; i++)
             {
-                var w = batch[i];
+                var w = pending[i];
                 progress.Report($"Consultando semana {w.Week}/{w.Year} " +
                                 $"({w.Start:dd/MM/yyyy} a {w.End:dd/MM/yyyy})...");
 
@@ -62,17 +60,11 @@ namespace Conversor_de_Arquivos
                 await _processor.AppendSemanaAsync(dados, caminhoMaster, progress);
                 progress.Report($"Semana {w.Week}/{w.Year} gravada.");
 
-                if (i < batch.Count - 1)
+                if (i < pending.Count - 1)
                     await Task.Delay(DELAY_ENTRE_CHAMADAS_MS);
             }
 
-            // 6. Post-batch summary
-            int restantes = pending.Count - batch.Count;
-            if (restantes > 0)
-                progress.Report($"Lote concluído. {restantes} semana(s) ainda pendente(s). " +
-                                 "Clique em \"Iniciar coleta\" novamente para continuar.");
-            else
-                progress.Report("Coleta concluída. Master está atualizada.");
+            progress.Report("Coleta concluída. Master está atualizada.");
         }
 
         private static SemanaFocos ParseJson(
@@ -113,34 +105,26 @@ namespace Conversor_de_Arquivos
             return list;
         }
 
-        private static string FormatResumo(
-            List<EpidemiologicalWeek.WeekInfo> all,
-            List<EpidemiologicalWeek.WeekInfo> batch)
+        private static string FormatResumo(List<EpidemiologicalWeek.WeekInfo> pending)
         {
-            int total = all.Count;
+            int total = pending.Count;
 
             if (total <= 10)
             {
-                var groups = all.GroupBy(w => w.Year).ToList();
+                var groups = pending.GroupBy(w => w.Year).ToList();
                 if (groups.Count == 1)
                 {
-                    string nums = string.Join(", ", all.Select(w => w.Week));
+                    string nums = string.Join(", ", pending.Select(w => w.Week));
                     return $"{total} semana(s) pendente(s): {nums} de {groups[0].Key}";
                 }
-                else
-                {
-                    string lista = string.Join(", ", all.Select(w => $"{w.Week}/{w.Year}"));
-                    return $"{total} semana(s) pendente(s): {lista}";
-                }
+                string lista = string.Join(", ", pending.Select(w => $"{w.Week}/{w.Year}"));
+                return $"{total} semana(s) pendente(s): {lista}";
             }
-            else
-            {
-                var first = batch.First();
-                var last  = batch.Last();
-                return $"{total} semana(s) pendente(s) ao todo. " +
-                       $"Processando este lote: semana {first.Week}/{first.Year} " +
-                       $"até semana {last.Week}/{last.Year} (até {LOTE_MAXIMO} semanas).";
-            }
+
+            var first = pending.First();
+            var last  = pending.Last();
+            return $"{total} semana(s) pendente(s): semana {first.Week}/{first.Year} " +
+                   $"até semana {last.Week}/{last.Year}.";
         }
     }
 }

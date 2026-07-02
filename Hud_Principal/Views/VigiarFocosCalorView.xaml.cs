@@ -33,10 +33,14 @@ namespace Hud_Principal.Views
             BtnStart.IsEnabled = false;
             TxtStatus.Text     = string.Empty;
 
+            string logPath = Path.Combine(Path.GetTempPath(), "nrnb_vigiar_debug.log");
+            File.WriteAllText(logPath, string.Empty);
+
             var progress = new Progress<string>(msg =>
             {
                 TxtStatus.Text += (TxtStatus.Text.Length > 0 ? "\n" : string.Empty) + msg;
                 StatusScroll.ScrollToBottom();
+                File.AppendAllText(logPath, msg + "\n");
             });
 
             try

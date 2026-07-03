@@ -15,12 +15,12 @@ namespace Hud_Principal.Views
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            var config = new ConfiguracaoService().Carregar();
+            var config = new ConfigurationService().Load();
 
             var errors = PathVerifier.Verify(
             [
-                (config.Vigiar.PastaArquivosBrutos, "Pasta de arquivos brutos (Vigiar) não configurada."),
-                (config.Vigiar.PastaIqAr,           "Pasta IQAr não configurada.")
+                (config.Vigiar.RawFilesFolder, "Pasta de arquivos brutos (Vigiar) não configurada."),
+                (config.Vigiar.IqArFolder,     "Pasta IQAr não configurada.")
             ]);
 
             if (errors.Count > 0)
@@ -42,14 +42,14 @@ namespace Hud_Principal.Views
                 File.AppendAllText(logPath, msg + "\n");
             });
 
-            string pathMestre = Path.Combine(config.Vigiar.PastaIqAr, "IQAR_MESTRE.xlsx");
+            string masterPath = Path.Combine(config.Vigiar.IqArFolder, "IQAR_MESTRE.xlsx");
 
             try
             {
                 await using var automation = new IqArAutomation();
-                string csvPath = await automation.ExecutarAsync(config.Vigiar.PastaArquivosBrutos, progress);
+                string csvPath = await automation.ExecuteAsync(config.Vigiar.RawFilesFolder, progress);
 
-                await new IqArDataProcessor().ProcessarAsync(csvPath, pathMestre, progress);
+                await new IqArDataProcessor().ProcessAsync(csvPath, masterPath, progress);
             }
             catch (Exception ex)
             {

@@ -1,6 +1,6 @@
 namespace Conversor_de_Arquivos
 {
-    public record FocoCidade(string Municipio, string Estado, int Focos);
+    public record CityHotspot(string Municipality, string State, int Hotspots);
 
-    public record SemanaFocos(int Ano, int Semana, DateTime Inicio, DateTime Fim, List<FocoCidade> Focos);
+    public record WeekHotspots(int Year, int Week, DateTime Start, DateTime End, List<CityHotspot> Hotspots);
 }

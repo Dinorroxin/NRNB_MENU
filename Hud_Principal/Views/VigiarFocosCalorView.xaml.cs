@@ -15,11 +15,11 @@ namespace Hud_Principal.Views
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            var config = new ConfiguracaoService().Carregar();
+            var config = new ConfigurationService().Load();
 
             var errors = PathVerifier.Verify(
             [
-                (config.Vigiar.PastaQueimadas, "Pasta de queimadas não configurada.")
+                (config.Vigiar.WildfiresFolder, "Pasta de queimadas não configurada.")
             ]);
 
             if (errors.Count > 0)
@@ -28,7 +28,7 @@ namespace Hud_Principal.Views
                 return;
             }
 
-            string caminhoMaster = Path.Combine(config.Vigiar.PastaQueimadas, "FOCOS_CALOR_MESTRE.xlsx");
+            string masterPath = Path.Combine(config.Vigiar.WildfiresFolder, "FOCOS_CALOR_MESTRE.xlsx");
 
             BtnStart.IsEnabled = false;
             TxtStatus.Text     = string.Empty;
@@ -45,14 +45,12 @@ namespace Hud_Principal.Views
 
             try
             {
-                // Playwright abre o browser UMA vez para toda a duração do lote.
                 await using var automation = new VigiarFocosCalorAutomation();
-                await automation.InicializarAsync(progress);
+                await automation.InitializeAsync(progress);
 
-                // O serviço chama o delegate por semana — fetch() roda dentro do browser real.
-                await new VigiarFocosCalorService().ExecutarAsync(
-                    caminhoMaster,
-                    (inicio, fim) => automation.BuscarSemanaJsonAsync(inicio, fim),
+                await new VigiarFocosCalorService().ExecuteAsync(
+                    masterPath,
+                    (start, end) => automation.FetchWeekJsonAsync(start, end),
                     progress);
             }
             catch (Exception ex)

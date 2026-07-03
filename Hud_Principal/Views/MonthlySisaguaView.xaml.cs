@@ -1,4 +1,4 @@
-﻿using Conversor_de_Arquivos;
+using Conversor_de_Arquivos;
 using Modulo_Seguranca;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,32 +15,32 @@ namespace Hud_Principal.Views
         {
             InitializeComponent();
 
-            for (int ano = 2014; ano <= DateTime.Now.Year; ano++)
-                LstAnos.Items.Add(ano);
+            for (int year = 2014; year <= DateTime.Now.Year; year++)
+                LstYears.Items.Add(year);
 
-            LstAnos.SelectedItem = DateTime.Now.Year;
+            LstYears.SelectedItem = DateTime.Now.Year;
         }
 
         private async void BtnStartMonthly_Click(object sender, RoutedEventArgs e)
         {
-            var anosSelecionados = LstAnos.SelectedItems
+            var selectedYears = LstYears.SelectedItems
                 .Cast<int>()
-                .OrderBy(a => a)
+                .OrderBy(y => y)
                 .ToList();
 
-            if (anosSelecionados.Count == 0)
+            if (selectedYears.Count == 0)
             {
                 MessageBox.Show("Selecione ao menos um ano.", "Aviso",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var config = new ConfiguracaoService().Carregar();
+            var config = new ConfigurationService().Load();
 
             var errors = PathVerifier.Verify(new List<(string, string)>
             {
-                (config.Vigiagua.PastaArquivosBrutos, "Pasta de arquivos brutos não informada"),
-                (config.Vigiagua.PastaCumprimentoDaDiretrizMensal, "Pasta da Diretriz Mensal não informada"),
+                (config.Vigiagua.RawFilesFolder,        "Pasta de arquivos brutos não informada"),
+                (config.Vigiagua.MonthlyDirectiveFolder, "Pasta da Diretriz Mensal não informada"),
             });
 
             if (errors.Count > 0)
@@ -57,11 +57,11 @@ namespace Hud_Principal.Views
             var progress = new Progress<string>(msg => TxtStatus.Text = msg);
             var automation = new SisaguaDiretrizAutomation();
 
-            var result = await automation.BaixarRelatoriosMensaisAsync(
+            var result = await automation.DownloadMonthlyReportsAsync(
                 config.Vigiagua.Email,
-                config.Vigiagua.Senha,
-                config.Vigiagua.PastaArquivosBrutos,
-                anosSelecionados,
+                config.Vigiagua.Password,
+                config.Vigiagua.RawFilesFolder,
+                selectedYears,
                 progress);
 
             if (!result.Success)
@@ -75,28 +75,28 @@ namespace Hud_Principal.Views
             }
 
             var processor = new SisaguaDataProcessor();
-            var errosProcessamento = new List<string>();
+            var processingErrors = new List<string>();
 
-            foreach (var pathBruto in result.DownloadedFiles)
+            foreach (var rawPath in result.DownloadedFiles)
             {
-                string nomeMestre = Path.GetFileNameWithoutExtension(pathBruto)
+                string masterName = Path.GetFileNameWithoutExtension(rawPath)
                     .Split('-')[1].Trim() + "_MESTRE.xlsx";
-                string pathMestre = Path.Combine(
-                    config.Vigiagua.PastaCumprimentoDaDiretrizMensal, nomeMestre);
+                string masterPath = Path.Combine(
+                    config.Vigiagua.MonthlyDirectiveFolder, masterName);
 
-                var proc = await processor.ProcessarAsync(pathBruto, pathMestre, progress);
+                var proc = await processor.ProcessAsync(rawPath, masterPath, progress);
 
                 if (!proc.Success)
-                    errosProcessamento.Add($"{proc.Parametro}: {proc.ErrorMessage}");
+                    processingErrors.Add($"{proc.Parameter}: {proc.ErrorMessage}");
             }
 
             StartMonthlySisagua.IsEnabled = true;
             StartMonthlySisagua.Content = "Iniciar Processo";
 
-            if (errosProcessamento.Count > 0)
+            if (processingErrors.Count > 0)
             {
                 TxtStatus.Text = "Concluído com erros.";
-                MessageBox.Show(string.Join("\n", errosProcessamento), "Erros no processamento",
+                MessageBox.Show(string.Join("\n", processingErrors), "Erros no processamento",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             else

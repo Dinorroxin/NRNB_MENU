@@ -6,14 +6,13 @@ namespace WebAutomation
     public class IqArAutomation : IAsyncDisposable
     {
         private const string ShinyUrl = "https://shiny.icict.fiocruz.br/alertarsaude/";
-        private const string NomeArquivo = "IQAR_ESTADO.csv";
+        private const string FileName = "IQAR_ESTADO.csv";
 
         private IPlaywright? _playwright;
         private IBrowser?    _browser;
 
-        // Retorna o caminho completo do CSV baixado.
-        public async Task<string> ExecutarAsync(
-            string pastaArquivosBrutos,
+        public async Task<string> ExecuteAsync(
+            string rawFilesFolder,
             IProgress<string>? progress = null)
         {
             progress?.Report("Iniciando browser (Playwright headless)...");
@@ -75,14 +74,14 @@ namespace WebAutomation
             //    O href contém o session ID dinâmico do Shiny — não precisamos extraí-lo,
             //    pois o Playwright segue o link nativo com o contexto de sessão correto.
             progress?.Report("Baixando CSV do estado...");
-            string caminhoDestino = Path.Combine(pastaArquivosBrutos, NomeArquivo);
+            string destinationPath = Path.Combine(rawFilesFolder, FileName);
 
             var download = await page.RunAndWaitForDownloadAsync(
                 () => page.ClickAsync("#download_data_iqar_uf"));
-            await download.SaveAsAsync(caminhoDestino);
+            await download.SaveAsAsync(destinationPath);
 
-            progress?.Report($"Download concluído: {NomeArquivo}");
-            return caminhoDestino;
+            progress?.Report($"Download concluído: {FileName}");
+            return destinationPath;
         }
 
         public async ValueTask DisposeAsync()

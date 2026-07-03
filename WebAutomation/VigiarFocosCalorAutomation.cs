@@ -12,7 +12,7 @@ namespace WebAutomation
         private IPage?             _page;
         private IProgress<string>? _progress;
 
-        public async Task InicializarAsync(IProgress<string>? progress = null)
+        public async Task InitializeAsync(IProgress<string>? progress = null)
         {
             _progress = progress;
 
@@ -31,7 +31,6 @@ namespace WebAutomation
             }
             catch (TimeoutException) { }
 
-            // Dropdowns encadeados: cada seleção dispara AJAX para popular o próximo.
             progress?.Report("Configurando filtros: América do Sul → Brasil → Rondônia...");
             await _page.SelectOptionAsync("#continents", "8");
             await _page.WaitForTimeoutAsync(1500);
@@ -43,21 +42,20 @@ namespace WebAutomation
             progress?.Report("Browser pronto. Filtros configurados.");
         }
 
-        // Fluxo por semana:
-        // (1) setar datas via jQuery datepicker
-        // (2) clicar #filter-button
-        // (3) aguardar firesByState — confirma que o filtro foi processado
-        // (4) clicar #box-firesByCity .layer-title — expande accordion lazy-loaded
-        // (5) capturar graphicsfirescount?id=firesByCity via RouteAsync
-        public async Task<string> BuscarSemanaJsonAsync(DateTime inicio, DateTime fim)
+        // Flow per week:
+        // (1) set dates via jQuery datepicker
+        // (2) click #filter-button
+        // (3) wait for firesByState — confirms filter was processed
+        // (4) click #box-firesByCity .layer-title — expands lazy-loaded accordion
+        // (5) capture graphicsfirescount?id=firesByCity via RouteAsync
+        public async Task<string> FetchWeekJsonAsync(DateTime start, DateTime end)
         {
             var tcsCity       = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-            var urlsCapturadas = new ConcurrentBag<string>();
+            var capturedUrls  = new ConcurrentBag<string>();
 
-            void OnRequest(object? _, IRequest req) => urlsCapturadas.Add(req.Url);
+            void OnRequest(object? _, IRequest req) => capturedUrls.Add(req.Url);
             _page!.Request += OnRequest;
 
-            // Rota registrada antes do accordion: captura firesByCity, deixa os demais passar.
             Func<IRoute, Task> handler = async route =>
             {
                 if (!route.Request.Url.Contains("id=firesByCity"))
@@ -86,20 +84,17 @@ namespace WebAutomation
 
             await _page.RouteAsync("**/graphicsfirescount**", handler);
 
-            // (1) Setar datas — val() define o texto; datepicker('setDate') sincroniza o widget.
             await _page.EvaluateAsync(
-                $"$('#filter-date-from').val('{inicio:dd/MM/yyyy}')" +
-                $".datepicker('setDate', new Date({inicio.Year},{inicio.Month - 1},{inicio.Day}))");
+                $"$('#filter-date-from').val('{start:dd/MM/yyyy}')" +
+                $".datepicker('setDate', new Date({start.Year},{start.Month - 1},{start.Day}))");
             await _page.EvaluateAsync(
-                $"$('#filter-date-to').val('{fim:dd/MM/yyyy}')" +
-                $".datepicker('setDate', new Date({fim.Year},{fim.Month - 1},{fim.Day}))");
+                $"$('#filter-date-to').val('{end:dd/MM/yyyy}')" +
+                $".datepicker('setDate', new Date({end.Year},{end.Month - 1},{end.Day}))");
 
-            // (2) Clicar Aplicar via DOM event.
             await _page.EvaluateAsync(
                 "document.getElementById('filter-button')" +
                 ".dispatchEvent(new MouseEvent('click', {bubbles:true, cancelable:true}))");
 
-            // (3) Aguardar firesByState — sinal de que o filtro foi processado pelo servidor.
             try
             {
                 await _page.WaitForResponseAsync(
@@ -108,14 +103,11 @@ namespace WebAutomation
             }
             catch (TimeoutException) { }
 
-            // (4) Expandir o accordion só se estiver fechado — ele é um toggle.
-            // A partir da 2ª semana já está aberto; clicar novamente o fecharia.
-            bool aberto = await _page.EvaluateAsync<bool>(
+            bool isOpen = await _page.EvaluateAsync<bool>(
                 "document.querySelector('#box-firesByCity div[style]').style.display !== 'none'");
-            if (!aberto)
+            if (!isOpen)
                 await _page.ClickAsync("#box-firesByCity .layer-title");
 
-            // (5) Capturar firesByCity.
             try
             {
                 string json = await tcsCity.Task.WaitAsync(TimeSpan.FromSeconds(15));
@@ -128,13 +120,13 @@ namespace WebAutomation
                 _page.Request -= OnRequest;
                 await _page.UnrouteAsync("**/graphicsfirescount**", handler);
 
-                string lista = urlsCapturadas.Count == 0
+                string urlList = capturedUrls.Count == 0
                     ? "(nenhuma URL disparada)"
-                    : string.Join("\n  ", urlsCapturadas);
+                    : string.Join("\n  ", capturedUrls);
 
                 throw new InvalidOperationException(
                     $"Timeout: firesByCity não interceptado após expandir accordion.\n" +
-                    $"URLs capturadas:\n  {lista}");
+                    $"URLs capturadas:\n  {urlList}");
             }
         }
 

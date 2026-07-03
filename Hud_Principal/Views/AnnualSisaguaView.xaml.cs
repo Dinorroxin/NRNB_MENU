@@ -1,4 +1,4 @@
-﻿using Conversor_de_Arquivos;
+using Conversor_de_Arquivos;
 using Modulo_Seguranca;
 using System.IO;
 using System.Linq;
@@ -14,39 +14,39 @@ namespace Hud_Principal.Views
         {
             InitializeComponent();
 
-            for (int ano = 2014; ano <= DateTime.Now.Year; ano++)
+            for (int year = 2014; year <= DateTime.Now.Year; year++)
             {
-                CmbAnoInicial.Items.Add(ano);
-                CmbAnoFinal.Items.Add(ano);
+                CmbStartYear.Items.Add(year);
+                CmbEndYear.Items.Add(year);
             }
 
-            CmbAnoInicial.SelectedItem = 2014;
-            CmbAnoFinal.SelectedItem = DateTime.Now.Year;
+            CmbStartYear.SelectedItem = 2014;
+            CmbEndYear.SelectedItem = DateTime.Now.Year;
         }
 
         private async void BtnStartAnnual_Click(object sender, RoutedEventArgs e)
         {
-            if (CmbAnoInicial.SelectedItem is not int anoInicial ||
-                CmbAnoFinal.SelectedItem is not int anoFinal)
+            if (CmbStartYear.SelectedItem is not int startYear ||
+                CmbEndYear.SelectedItem is not int endYear)
             {
                 MessageBox.Show("Selecione os anos.", "Aviso",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (anoInicial > anoFinal)
+            if (startYear > endYear)
             {
                 MessageBox.Show("Ano inicial não pode ser maior que o ano final.", "Aviso",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var config = new ConfiguracaoService().Carregar();
+            var config = new ConfigurationService().Load();
 
             var errors = PathVerifier.Verify(new List<(string, string)>
             {
-                (config.Vigiagua.PastaArquivosBrutos, "Pasta de arquivos brutos não informada"),
-                (config.Vigiagua.PastaCumprimentoDaDiretrizAnual, "Pasta da Diretriz Anual não informada"),
+                (config.Vigiagua.RawFilesFolder,       "Pasta de arquivos brutos não informada"),
+                (config.Vigiagua.AnnualDirectiveFolder, "Pasta da Diretriz Anual não informada"),
             });
 
             if (errors.Count > 0)
@@ -63,12 +63,12 @@ namespace Hud_Principal.Views
             var progress = new Progress<string>(msg => TxtStatus.Text = msg);
             var automation = new SisaguaDiretrizAnualAutomation();
 
-            var result = await automation.BaixarRelatoriosAnuaisAsync(
+            var result = await automation.DownloadAnnualReportsAsync(
                 config.Vigiagua.Email,
-                config.Vigiagua.Senha,
-                config.Vigiagua.PastaArquivosBrutos,
-                anoInicial,
-                anoFinal,
+                config.Vigiagua.Password,
+                config.Vigiagua.RawFilesFolder,
+                startYear,
+                endYear,
                 progress);
 
             if (!result.Success)
@@ -81,29 +81,29 @@ namespace Hud_Principal.Views
                 return;
             }
 
-            var processor = new SisaguaAnualDataProcessor();
-            var erros = new List<string>();
+            var processor = new SisaguaAnnualDataProcessor();
+            var errors2 = new List<string>();
 
-            foreach (var pathBruto in result.DownloadedFiles)
+            foreach (var rawPath in result.DownloadedFiles)
             {
-                string nomeMestre = Path.GetFileNameWithoutExtension(pathBruto)
+                string masterName = Path.GetFileNameWithoutExtension(rawPath)
                     .Split('-')[1].Trim() + "_ANUAL_MESTRE.xlsx";
-                string pathMestre = Path.Combine(
-                    config.Vigiagua.PastaCumprimentoDaDiretrizAnual, nomeMestre);
+                string masterPath = Path.Combine(
+                    config.Vigiagua.AnnualDirectiveFolder, masterName);
 
-                var proc = await processor.ProcessarAsync(pathBruto, pathMestre, progress);
+                var proc = await processor.ProcessAsync(rawPath, masterPath, progress);
 
                 if (!proc.Success)
-                    erros.Add($"{proc.Parametro}: {proc.ErrorMessage}");
+                    errors2.Add($"{proc.Parameter}: {proc.ErrorMessage}");
             }
 
             StartAnnualSisagua.IsEnabled = true;
             StartAnnualSisagua.Content = "Iniciar Processo";
 
-            if (erros.Count > 0)
+            if (errors2.Count > 0)
             {
                 TxtStatus.Text = "Concluído com erros.";
-                MessageBox.Show(string.Join("\n", erros), "Erros",
+                MessageBox.Show(string.Join("\n", errors2), "Erros",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             else

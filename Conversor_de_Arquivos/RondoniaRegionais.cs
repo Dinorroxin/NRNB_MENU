@@ -1,4 +1,4 @@
-﻿namespace Conversor_de_Arquivos
+namespace Conversor_de_Arquivos
 {
     public static class RondoniaRegionais
     {
@@ -58,10 +58,10 @@
             ["SAO FRANCISCO DO GUAPORE"] = "Vale do Guaporé",
         };
 
-        public static string ObterRegional(string municipio)
+        public static string GetRegion(string municipality)
         {
-            string chave = municipio.Trim().ToUpper();
-            return RegionalMap.TryGetValue(chave, out var regional) ? regional : "Não identificado";
+            string key = municipality.Trim().ToUpper();
+            return RegionalMap.TryGetValue(key, out var region) ? region : "Não identificado";
         }
     }
 }

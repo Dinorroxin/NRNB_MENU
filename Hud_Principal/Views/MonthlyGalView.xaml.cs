@@ -1,4 +1,4 @@
-﻿using Conversor_de_Arquivos;
+using Conversor_de_Arquivos;
 using Modulo_Seguranca;
 using System.Globalization;
 using System.IO;
@@ -18,11 +18,9 @@ namespace Hud_Principal.Views
         public MonthlyGalView()
         {
             InitializeComponent();
-            TxtDataInicio.Text = $"01/01/{DateTime.Now.Year}";
-            TxtDataFim.Text    = DateTime.Now.ToString("dd/MM/yyyy");
+            TxtStartDate.Text = $"01/01/{DateTime.Now.Year}";
+            TxtEndDate.Text   = DateTime.Now.ToString("dd/MM/yyyy");
         }
-
-        // ── Date mask helpers ───────────────────────────────────────────────────
 
         // Block every non-digit character; "/" is auto-inserted by Date_TextChanged.
         private void Date_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -50,13 +48,11 @@ namespace Hud_Principal.Views
             _formattingDate = true;
             int caret = tb.CaretIndex;
             tb.Text = formatted;
-            // Keep caret roughly in place, advancing past slashes that were just inserted
             int newCaret = Math.Min(caret, formatted.Length);
             while (newCaret < formatted.Length && formatted[newCaret] == '/') newCaret++;
             tb.CaretIndex = newCaret;
             _formattingDate = false;
 
-            // Clear any previous error highlight while the user is still typing
             tb.ClearValue(System.Windows.Controls.Control.BorderBrushProperty);
         }
 
@@ -78,75 +74,75 @@ namespace Hud_Principal.Views
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(TxtDataInicio.Text) ||
-                string.IsNullOrWhiteSpace(TxtDataFim.Text) ||
+            if (string.IsNullOrWhiteSpace(TxtStartDate.Text) ||
+                string.IsNullOrWhiteSpace(TxtEndDate.Text) ||
                 string.IsNullOrWhiteSpace(TxtIbge.Text))
             {
                 TxtStatus.Text = "Preencha todos os campos antes de iniciar.";
                 return;
             }
 
-            var config = new ConfiguracaoService().Carregar();
+            var config = new ConfigurationService().Load();
 
-            var errors = new List<string>();
-            if (string.IsNullOrWhiteSpace(config.Gal.Usuario))
-                errors.Add("Usuário do GAL não configurado.");
-            if (string.IsNullOrWhiteSpace(config.Gal.Senha))
-                errors.Add("Senha do GAL não configurada.");
-            if (string.IsNullOrWhiteSpace(config.Gal.PastaBrutaRelatoriosMensalGal))
-                errors.Add("Pasta de download do GAL não configurada.");
-            if (string.IsNullOrWhiteSpace(config.Gal.PastaRelatoriosMensalGal))
-                errors.Add("Pasta de relatórios processados do GAL não configurada.");
+            var credentialErrors = new List<string>();
+            if (string.IsNullOrWhiteSpace(config.Gal.Username))
+                credentialErrors.Add("Usuário do GAL não configurado.");
+            if (string.IsNullOrWhiteSpace(config.Gal.Password))
+                credentialErrors.Add("Senha do GAL não configurada.");
 
-            if (errors.Count > 0)
+            var pathErrors = PathVerifier.Verify(new List<(string, string)>
             {
-                TxtStatus.Text = string.Join("\n", errors);
+                (config.Gal.GalMonthlyRawFolder, "Pasta de download do GAL não configurada."),
+                (config.Gal.GalMonthlyFolder,    "Pasta de relatórios processados do GAL não configurada."),
+            });
+
+            var allErrors = credentialErrors.Concat(pathErrors).ToList();
+            if (allErrors.Count > 0)
+            {
+                TxtStatus.Text = string.Join("\n", allErrors);
                 return;
             }
 
-            // Lê todos os valores de UI antes do Task.Run
-            string referencia  = ((ComboBoxItem)CmbReferencia.SelectedItem).Content.ToString()!;
-            string dataInicio  = TxtDataInicio.Text;
-            string dataFim     = TxtDataFim.Text;
-            string ibge        = TxtIbge.Text;
-            string usuario     = config.Gal.Usuario;
-            string senha       = config.Gal.Senha;
-            string modulo      = config.Gal.Modulo;
-            string laboratorio = config.Gal.Laboratorio;
-            string pastaBruta  = config.Gal.PastaBrutaRelatoriosMensalGal;
-            string pastaMestre = config.Gal.PastaRelatoriosMensalGal;
+            string reference  = ((ComboBoxItem)CmbReference.SelectedItem).Content.ToString()!;
+            string startDate  = TxtStartDate.Text;
+            string endDate    = TxtEndDate.Text;
+            string ibgeCode   = TxtIbge.Text;
+            string username   = config.Gal.Username;
+            string password   = config.Gal.Password;
+            string module     = config.Gal.Module;
+            string laboratory = config.Gal.Laboratory;
+            string rawFolder  = config.Gal.GalMonthlyRawFolder;
+            string masterFolder = config.Gal.GalMonthlyFolder;
 
             BtnStart.IsEnabled = false;
 
             var progress = new Progress<string>(msg => TxtStatus.Text = msg);
 
-            // 1. Download do PDF via Playwright
-            bool sucesso = await Task.Run(() =>
+            bool success = await Task.Run(() =>
                 new GalMonthlyAutomation().BaixarRelatorioMensalAsync(
-                    usuario, senha, modulo, laboratorio,
-                    pastaBruta, referencia, dataInicio, dataFim, ibge,
+                    username, password, module, laboratory,
+                    rawFolder, reference, startDate, endDate, ibgeCode,
                     progress));
 
-            if (!sucesso)
+            if (!success)
             {
                 TxtStatus.Text = "Falha na coleta. Verifique o status acima.";
                 BtnStart.IsEnabled = true;
                 return;
             }
 
-            // 2. Processa o PDF baixado e faz append/deduplicação no mestre
-            string dIni     = dataInicio.Replace("/", "");
-            string dFim     = dataFim.Replace("/", "");
-            string pathPdf  = Path.Combine(pastaBruta,  $"Relatorio_GAL_{dIni}_a_{dFim}.pdf");
-            string pathMestre = Path.Combine(pastaMestre, "Acompanhamento_Mensal_Agua_MESTRE.xlsx");
+            string dStart   = startDate.Replace("/", "");
+            string dEnd     = endDate.Replace("/", "");
+            string pdfPath  = Path.Combine(rawFolder,    $"Relatorio_GAL_{dStart}_a_{dEnd}.pdf");
+            string masterPath = Path.Combine(masterFolder, "Acompanhamento_Mensal_Agua_MESTRE.xlsx");
 
-            var resultado = await Task.Run(() =>
-                new GalMonthlyDataProcessor().ProcessarAsync(pathPdf, pathMestre, progress));
+            var result = await Task.Run(() =>
+                new GalMonthlyDataProcessor().ProcessAsync(pdfPath, masterPath, progress));
 
-            TxtStatus.Text = resultado.Sucesso
-                ? $"Concluído. {resultado.MunicipiosEncontrados} municípios processados, " +
-                  $"{resultado.LinhasProcessadas} linhas no mestre."
-                : $"Download OK, mas falha no processamento: {resultado.Erro}";
+            TxtStatus.Text = result.Success
+                ? $"Concluído. {result.MunicipalitiesFound} municípios processados, " +
+                  $"{result.RowsProcessed} linhas no mestre."
+                : $"Download OK, mas falha no processamento: {result.ErrorMessage}";
 
             BtnStart.IsEnabled = true;
         }

@@ -1,83 +1,101 @@
-﻿<local:BaseView x:Class="Hud_Principal.Views.AnnualSisaguaView"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:Hud_Principal.Views"
-      mc:Ignorable="d"
-      d:Height="840" d:Width="1400">
+<views:BaseView x:Class="Hud_Principal.Views.AnnualSisaguaView"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:views="clr-namespace:Hud_Principal.Views"
+               Background="#0d0f0e">
 
-    <Grid>
+    <DockPanel>
 
-        <Button
-            FontSize="15"
-            Content="← Voltar"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Style="{StaticResource SidebarButton}"
-            Padding="10,6"
-            Margin="20,20,0,0"
-            Click="BtnHome_Click"/>
-
-        <StackPanel
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            MaxWidth="1000">
-
-            <Image
-                Source="/Assets/Vigiagua_Logo.png"
-                Width="200"
-                Height="200"
-                Margin="0,0,0,30"/>
-
-            <TextBlock
-                Text="Processo de Automação Anual de Diretrizes do Sisagua"
-                FontSize="27"
-                FontWeight="Bold"
-                Foreground="#e5e7e6"
-                TextAlignment="Center"
-                TextWrapping="Wrap"
-                Margin="0,0,0,20"/>
-
-            <TextBlock
-                Text="Selecione o intervalo de anos:"
-                FontSize="16"
-                Foreground="#b5b8b7"
-                TextAlignment="Center"
-                Margin="0,10,0,10"/>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
-                <StackPanel Margin="0,0,20,0">
-                    <TextBlock Text="Ano Inicial" Foreground="#b5b8b7" FontSize="14"
-                               TextAlignment="Center" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="CmbAnoInicial" Width="120" FontSize="15"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="Ano Final" Foreground="#b5b8b7" FontSize="14"
-                               TextAlignment="Center" Margin="0,0,0,5"/>
-                    <ComboBox x:Name="CmbAnoFinal" Width="120" FontSize="15"/>
-                </StackPanel>
-            </StackPanel>
-
-            <Button
-                x:Name="StartAnnualSisagua"
-                Content="Iniciar Processo"
-                FontSize="30"
-                Padding="20,10"
-                Margin="0,10,0,0"
-                HorizontalAlignment="Center"
+        <Button DockPanel.Dock="Top"
+                Content="&#x2190; Voltar"
+                HorizontalAlignment="Left"
                 Style="{StaticResource SidebarButton}"
-                Click="BtnStartAnnual_Click"/>
+                FontSize="13"
+                Padding="10,6"
+                Margin="20,16,0,0"
+                Click="BtnHome_Click"/>
 
-            <TextBlock
-                x:Name="TxtStatus"
-                Text=""
-                FontSize="16"
-                Foreground="#b5b8b7"
-                TextAlignment="Center"
-                TextWrapping="Wrap"
-                Margin="0,15,0,0"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="48,24,48,40">
 
-        </StackPanel>
-    </Grid>
-</local:BaseView>
+                <!-- Header -->
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="Vigiagua &#x2014; Vigilância da Qualidade da Água para Consumo Humano"
+                               FontSize="11" Foreground="#666666"/>
+                    <TextBlock Text="Diretriz Nacional &#x2014; Anual"
+                               FontSize="22" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Sisagua &#xB7; Cloro Residual Livre &#xB7; Turbidez &#xB7; Coliformes &#xB7; Rond&#xF4;nia"
+                               FontSize="14" Foreground="#999999"/>
+                </StackPanel>
+
+                <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
+
+                <!-- Logo -->
+                <Image Width="140" Height="140"
+                       Margin="0,0,0,24"
+                       HorizontalAlignment="Left"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Source="/Assets/Vigiagua_Logo.png"/>
+
+                <!-- Description -->
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="#cccccc"
+                           FontSize="13"
+                           Margin="0,0,0,8">
+                    Coleta os dados consolidados anuais de cumprimento de diretriz para os
+                    tr&#xEA;s par&#xE2;metros principais: Cloro Residual Livre, Turbidez e Coliformes
+                    Totais/E. coli, atualizando a planilha mestra anual do Power BI.
+                </TextBlock>
+
+                <TextBlock TextWrapping="Wrap"
+                           Foreground="#666666"
+                           FontSize="12"
+                           Margin="0,0,0,32">
+                    O processo baixa um arquivo por par&#xE2;metro. Selecione o intervalo de anos
+                    desejado antes de iniciar.
+                </TextBlock>
+
+                <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
+
+                <!-- Parameters -->
+                <TextBlock Text="PAR&#xC2;METROS"
+                           FontSize="11" Foreground="#555555"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,16"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,32">
+                    <StackPanel Margin="0,0,24,0">
+                        <TextBlock Text="Ano Inicial" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="CmbStartYear"
+                                  Width="160" HorizontalAlignment="Left"
+                                  Foreground="Black"
+                                  Style="{StaticResource FormFieldComboBox}"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Ano Final" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="CmbEndYear"
+                                  Width="160" HorizontalAlignment="Left"
+                                  Foreground="Black"
+                                  Style="{StaticResource FormFieldComboBox}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Action -->
+                <Button x:Name="StartAnnualSisagua"
+                        Content="Iniciar Processo"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource SidebarButton}"
+                        Padding="16,8"
+                        Margin="0,0,0,16"
+                        Click="BtnStartAnnual_Click"/>
+
+                <TextBlock x:Name="TxtStatus"
+                           Foreground="#666666"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+
+</views:BaseView>

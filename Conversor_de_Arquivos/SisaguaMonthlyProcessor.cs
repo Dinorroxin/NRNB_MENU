@@ -1,29 +1,29 @@
-﻿using System.Data;
+using System.Data;
 using ExcelDataReader;
 using OfficeOpenXml;
 
 namespace Conversor_de_Arquivos
 {
-    public class ProcessamentoResult
+    public class ProcessingResult
     {
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
         public int RowsAdded { get; set; }
-        public string Parametro { get; set; } = string.Empty;
+        public string Parameter { get; set; } = string.Empty;
     }
 
     public class SisaguaDataProcessor
     {
-        private static readonly string[] Meses =
+        private static readonly string[] Months =
             ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN",
              "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
 
-        public async Task<ProcessamentoResult> ProcessarAsync(
-            string pathArquivoBruto,
-            string pathMestre,
+        public async Task<ProcessingResult> ProcessAsync(
+            string rawFilePath,
+            string masterPath,
             IProgress<string>? progress = null)
         {
-            var result = new ProcessamentoResult();
+            var result = new ProcessingResult();
 
             try
             {
@@ -32,76 +32,71 @@ namespace Conversor_de_Arquivos
                     System.Text.CodePagesEncodingProvider.Instance);
 
                 DataSet ds;
-                using (var stream = File.Open(pathArquivoBruto,
+                using (var stream = File.Open(rawFilePath,
                            FileMode.Open, FileAccess.Read))
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                     ds = reader.AsDataSet();
 
                 var sheet = ds.Tables[0];
 
-                // Metadados
-                string ano = sheet.Rows[2][1]?.ToString()
+                string year = sheet.Rows[2][1]?.ToString()
                                    ?? DateTime.Now.Year.ToString();
-                string parametro = sheet.Rows[4][1]?.ToString()
+                string parameter = sheet.Rows[4][1]?.ToString()
                                    ?? string.Empty;
-                result.Parametro = parametro;
+                result.Parameter = parameter;
 
-                progress?.Report($"Processando {parametro} ({ano})...");
+                progress?.Report($"Processando {parameter} ({year})...");
 
-                // Monta linhas long-format
                 var rows = new List<string[]>();
 
                 for (int i = 0; i < 52; i++)
                 {
-                    var rowPerc = sheet.Rows[8 + i]; // Tabela 1 (%)
-                    var rowN = sheet.Rows[63 + i]; // Tabela 2 (N)
+                    var rowPerc = sheet.Rows[8 + i];
+                    var rowN = sheet.Rows[63 + i];
 
-                    string municipio = rowPerc[0]?.ToString() ?? string.Empty;
+                    string municipality = rowPerc[0]?.ToString() ?? string.Empty;
                     string codIbge = rowPerc[1]?.ToString() ?? string.Empty;
-                    string populacao = rowPerc[2]?.ToString() ?? string.Empty;
-                    string regional = RondoniaRegionais.ObterRegional(municipio);
+                    string population = rowPerc[2]?.ToString() ?? string.Empty;
+                    string region = RondoniaRegionais.GetRegion(municipality);
 
                     for (int m = 0; m < 12; m++)
                     {
                         string rawPerc = rowPerc[5 + m]?.ToString() ?? string.Empty;
                         string rawN = rowN[5 + m]?.ToString() ?? string.Empty;
 
-                        // Mês futuro — ambos nulos — pula
-                        bool semDados = string.IsNullOrWhiteSpace(rawPerc)
-                                     && string.IsNullOrWhiteSpace(rawN);
-                        if (semDados) continue;
+                        bool noData = string.IsNullOrWhiteSpace(rawPerc)
+                                   && string.IsNullOrWhiteSpace(rawN);
+                        if (noData) continue;
 
                         rows.Add([
-                            municipio,
+                            municipality,
                             codIbge,
-                            populacao,
-                            regional,
-                            ano,
-                            Meses[m],
-                            LimparPercentual(rawPerc), // "%" → " ", "-" → "0"
-                            LimparN(rawN),             // "-" → "0"
-                            parametro
+                            population,
+                            region,
+                            year,
+                            Months[m],
+                            CleanPercentage(rawPerc),
+                            CleanN(rawN),
+                            parameter
                         ]);
                     }
                 }
 
-                // Atualiza master
                 progress?.Report("Atualizando planilha mestre...");
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
                 ExcelPackage package;
                 ExcelWorksheet ws;
 
-                if (File.Exists(pathMestre))
+                if (File.Exists(masterPath))
                 {
-                    package = new ExcelPackage(new FileInfo(pathMestre));
+                    package = new ExcelPackage(new FileInfo(masterPath));
                     ws = package.Workbook.Worksheets[0];
 
-                    // Remove linhas do ano atual (de trás pra frente)
                     int lastRow = ws.Dimension?.End.Row ?? 1;
                     for (int r = lastRow; r >= 2; r--)
                     {
-                        if (ws.Cells[r, 5].Text == ano)
+                        if (ws.Cells[r, 5].Text == year)
                             ws.DeleteRow(r);
                     }
                 }
@@ -117,7 +112,6 @@ namespace Conversor_de_Arquivos
                         ws.Cells[1, c + 1].Value = headers[c];
                 }
 
-                // Append
                 int nextRow = (ws.Dimension?.End.Row ?? 1) + 1;
                 foreach (var row in rows)
                 {
@@ -126,7 +120,7 @@ namespace Conversor_de_Arquivos
                     nextRow++;
                 }
 
-                await package.SaveAsAsync(new FileInfo(pathMestre));
+                await package.SaveAsAsync(new FileInfo(masterPath));
                 package.Dispose();
 
                 result.RowsAdded = rows.Count;
@@ -141,13 +135,13 @@ namespace Conversor_de_Arquivos
             return result;
         }
 
-        private static string LimparPercentual(string raw)
+        private static string CleanPercentage(string raw)
         {
             if (string.IsNullOrWhiteSpace(raw) || raw.Trim() == "-") return "0";
             return raw.Replace("%", " ").Trim();
         }
 
-        private static string LimparN(string raw)
+        private static string CleanN(string raw)
         {
             if (string.IsNullOrWhiteSpace(raw) || raw.Trim() == "-") return "0";
             return raw.Trim();

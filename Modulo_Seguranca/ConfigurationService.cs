@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 namespace Modulo_Seguranca
 {
-    public class ConfiguracaoService
+    public class ConfigurationService
     {
-        public void Salvar(Configuracao config)
+        public void Save(Configuration config)
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
 
@@ -14,13 +14,13 @@ namespace Modulo_Seguranca
             File.WriteAllText(path, json);
         }
 
-        public Configuracao Carregar()
+        public Configuration Load()
         {
             try
             {
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
                 string text = File.ReadAllText(path);
-                Configuracao config = JsonSerializer.Deserialize<Configuracao>(text) ?? new Configuracao();
+                Configuration config = JsonSerializer.Deserialize<Configuration>(text) ?? new Configuration();
                 return config;
             }
             catch (FileNotFoundException)

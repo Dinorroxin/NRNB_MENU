@@ -6,47 +6,42 @@ namespace Conversor_de_Arquivos
 {
     public class FocosCalorDataProcessor
     {
-        // Returns the highest (Ano, Semana) pair already recorded, or null if the file is empty/absent.
-        public (int Ano, int Semana)? ReadMaxWeek(string pathMestre)
+        public (int Year, int Week)? ReadMaxWeek(string masterPath)
         {
-            if (!File.Exists(pathMestre)) return null;
+            if (!File.Exists(masterPath)) return null;
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            using var pkg = new ExcelPackage(new FileInfo(pathMestre));
+            using var pkg = new ExcelPackage(new FileInfo(masterPath));
             if (pkg.Workbook.Worksheets.Count == 0) return null;
 
             var ws = pkg.Workbook.Worksheets[0];
             int lastRow = ws.Dimension?.End.Row ?? 1;
 
-            int maxAno = 0, maxSem = 0;
+            int maxYear = 0, maxWeek = 0;
             bool found = false;
 
             for (int r = 2; r <= lastRow; r++)
             {
-                int ano = GetInt(ws, r, 3);
-                int sem = GetInt(ws, r, 4);
-                if (ano == 0) continue;
+                int year = GetInt(ws, r, 3);
+                int week = GetInt(ws, r, 4);
+                if (year == 0) continue;
 
-                if (!found || ano > maxAno || (ano == maxAno && sem > maxSem))
+                if (!found || year > maxYear || (year == maxYear && week > maxWeek))
                 {
-                    maxAno  = ano;
-                    maxSem  = sem;
+                    maxYear = year;
+                    maxWeek = week;
                     found   = true;
                 }
             }
 
-            return found ? (maxAno, maxSem) : null;
+            return found ? (maxYear, maxWeek) : null;
         }
 
-        // Appends the week's rows to the master file (append-only).
-        // Skips silently if (Ano, Semana) already exists in the file.
-        public async Task AppendSemanaAsync(SemanaFocos semana, string pathMestre, IProgress<string>? progress = null)
+        public async Task AppendWeekAsync(WeekHotspots weekData, string masterPath, IProgress<string>? progress = null)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            var fileInfo = new FileInfo(pathMestre);
-
-            // Ensure directory exists
+            var fileInfo = new FileInfo(masterPath);
             fileInfo.Directory?.Create();
 
             using var pkg = fileInfo.Exists
@@ -72,31 +67,29 @@ namespace Conversor_de_Arquivos
 
             int lastRow = ws.Dimension?.End.Row ?? 1;
 
-            // Defensive duplicate check by (Ano, Semana)
             for (int r = 2; r <= lastRow; r++)
             {
-                if (GetInt(ws, r, 3) == semana.Ano && GetInt(ws, r, 4) == semana.Semana)
+                if (GetInt(ws, r, 3) == weekData.Year && GetInt(ws, r, 4) == weekData.Week)
                     return;
             }
 
             int nextRow = lastRow + 1;
 
-            if (semana.Focos.Count == 0)
+            if (weekData.Hotspots.Count == 0)
             {
-                WriteRow(ws, nextRow, "Sem Registro", "Sem Registro", semana);
+                WriteRow(ws, nextRow, "Sem Registro", "Sem Registro", weekData);
             }
             else
             {
-                foreach (var foco in semana.Focos)
+                foreach (var hotspot in weekData.Hotspots)
                 {
-                    string municipioNorm = RemoverAcentos(foco.Municipio.Trim().ToUpperInvariant());
-                    string regional = RondoniaRegionais.ObterRegional(municipioNorm);
+                    string municipalityNorm = StripAccents(hotspot.Municipality.Trim().ToUpperInvariant());
+                    string region = RondoniaRegionais.GetRegion(municipalityNorm);
 
-                    // Fallback when ObterRegional returns its own "Não identificado" sentinel
-                    if (string.IsNullOrWhiteSpace(regional) || regional == "Não identificado")
-                        regional = "Sem Registro";
+                    if (string.IsNullOrWhiteSpace(region) || region == "Não identificado")
+                        region = "Sem Registro";
 
-                    WriteRow(ws, nextRow, foco.Municipio, regional, semana, foco.Focos);
+                    WriteRow(ws, nextRow, hotspot.Municipality, region, weekData, hotspot.Hotspots);
                     nextRow++;
                 }
             }
@@ -105,17 +98,17 @@ namespace Conversor_de_Arquivos
         }
 
         private static void WriteRow(ExcelWorksheet ws, int row,
-            string municipio, string regional, SemanaFocos semana, int focos = 0)
+            string municipality, string region, WeekHotspots weekData, int hotspots = 0)
         {
-            ws.Cells[row, 1].Value = municipio;
-            ws.Cells[row, 2].Value = regional;
-            ws.Cells[row, 3].Value = semana.Ano;
-            ws.Cells[row, 4].Value = semana.Semana;
-            ws.Cells[row, 5].Value = semana.Inicio.Date;
+            ws.Cells[row, 1].Value = municipality;
+            ws.Cells[row, 2].Value = region;
+            ws.Cells[row, 3].Value = weekData.Year;
+            ws.Cells[row, 4].Value = weekData.Week;
+            ws.Cells[row, 5].Value = weekData.Start.Date;
             ws.Cells[row, 5].Style.Numberformat.Format = "dd/MM/yyyy";
-            ws.Cells[row, 6].Value = semana.Fim.Date;
+            ws.Cells[row, 6].Value = weekData.End.Date;
             ws.Cells[row, 6].Style.Numberformat.Format = "dd/MM/yyyy";
-            ws.Cells[row, 7].Value = focos;
+            ws.Cells[row, 7].Value = hotspots;
         }
 
         private static int GetInt(ExcelWorksheet ws, int row, int col)
@@ -129,11 +122,11 @@ namespace Conversor_de_Arquivos
             };
         }
 
-        private static string RemoverAcentos(string texto)
+        private static string StripAccents(string text)
         {
-            string normalizado = texto.Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder(normalizado.Length);
-            foreach (char c in normalizado)
+            string normalized = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(normalized.Length);
+            foreach (char c in normalized)
             {
                 if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                     sb.Append(c);

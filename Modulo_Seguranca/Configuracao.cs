@@ -1,43 +1,75 @@
-﻿namespace Modulo_Seguranca
+using System.Text.Json.Serialization;
+
+namespace Modulo_Seguranca
 {
-    // Setando as propriedades com get; set;
-    public class ConfiguracaoVigiagua 
+    public class ConfigurationVigiagua
     {
         public const string UrlLogin = "https://sisagua.saude.gov.br/sisagua/paginaExterna.jsf";
-        public const string UrlDiretrizMensal = "https://sisagua.saude.gov.br/sisagua/paginas/seguro/relatorioDiretrizNacional/relDiretrizNacionalParametrosBasicos.jsf?faces-redirect=true";
-        public string Email { get; set; } = string.Empty;   // string.Empty; Para não dar aviso de que a propriedade pode ser nula
-        public string Senha { get; set; } = string.Empty;
-        public string PastaArquivosBrutos { get; set; } = string.Empty;
-        public string PastaCumprimentoDaDiretrizMensal { get; set; } = string.Empty;
-        public string PastaCumprimentoDaDiretrizAnual { get; set; } = string.Empty;
-        public string PastaControle { get; set; } = string.Empty;
+        public const string UrlMonthlyDirective = "https://sisagua.saude.gov.br/sisagua/paginas/seguro/relatorioDiretrizNacional/relDiretrizNacionalParametrosBasicos.jsf?faces-redirect=true";
+
+        public string Email { get; set; } = string.Empty;
+
+        [JsonPropertyName("Senha")]
+        public string Password { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaArquivosBrutos")]
+        public string RawFilesFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaCumprimentoDaDiretrizMensal")]
+        public string MonthlyDirectiveFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaCumprimentoDaDiretrizAnual")]
+        public string AnnualDirectiveFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaControle")]
+        public string ControlFolder { get; set; } = string.Empty;
     }
 
-    public class ConfiguracaoVigiar
+    public class ConfigurationVigiar
     {
         public const string UrlIqAr = "https://shiny.icict.fiocruz.br/alertarsaude/";
-        public const string UrlBdQueimadas = "https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/#exportar-dados";
-        public string PastaArquivosBrutos { get; set; } = string.Empty;
-        public string PastaQueimadas { get; set; } = string.Empty;
-        public string PastaIqAr { get; set; } = string.Empty;
+        public const string UrlWildfiresDatabase = "https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/#exportar-dados";
+
+        [JsonPropertyName("PastaArquivosBrutos")]
+        public string RawFilesFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaQueimadas")]
+        public string WildfiresFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaIqAr")]
+        public string IqArFolder { get; set; } = string.Empty;
     }
 
-    public class ConfiguracaoGal
+    public class ConfigurationGal
     {
         public const string UrlLogin = "https://gal.rondonia.sus.gov.br";
-        public string Usuario { get; set; } = string.Empty;
-        public string Senha { get; set; } = string.Empty;   
-        public string Modulo { get; set; } = string.Empty;
-        public string Laboratorio { get; set; } = string.Empty;
-        public string PastaBrutaRelatoriosMensalGal { get; set; } = string.Empty;
-        public string PastaRelatoriosMensalGal { get; set; } = string.Empty;
+
+        [JsonPropertyName("Usuario")]
+        public string Username { get; set; } = string.Empty;
+
+        [JsonPropertyName("Senha")]
+        public string Password { get; set; } = string.Empty;
+
+        [JsonPropertyName("Modulo")]
+        public string Module { get; set; } = string.Empty;
+
+        [JsonPropertyName("Laboratorio")]
+        public string Laboratory { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaBrutaRelatoriosMensalGal")]
+        public string GalMonthlyRawFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaRelatoriosMensalGal")]
+        public string GalMonthlyFolder { get; set; } = string.Empty;
     }
 
-    public class Configuracao
+    public class Configuration
     {
-        public List<string> ExtensoesBloqueadas { get; set; } = []; // Como é uma lista, só dizer que ele é lista vazia
-        public ConfiguracaoVigiagua Vigiagua { get; set; } = new ConfiguracaoVigiagua(); // Criando novo objeto
-        public ConfiguracaoGal Gal { get; set; } = new ConfiguracaoGal();
-        public ConfiguracaoVigiar Vigiar { get; set; } = new ConfiguracaoVigiar();
+        [JsonPropertyName("ExtensoesBloqueadas")]
+        public List<string> BlockedExtensions { get; set; } = [];
+
+        public ConfigurationVigiagua Vigiagua { get; set; } = new ConfigurationVigiagua();
+        public ConfigurationGal Gal { get; set; } = new ConfigurationGal();
+        public ConfigurationVigiar Vigiar { get; set; } = new ConfigurationVigiar();
     }
 }

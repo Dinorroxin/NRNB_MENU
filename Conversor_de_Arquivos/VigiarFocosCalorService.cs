@@ -5,28 +5,23 @@ namespace Conversor_de_Arquivos
 {
     public class VigiarFocosCalorService
     {
-        private const int DELAY_ENTRE_CHAMADAS_MS     = 400;
-        private const int ANO_INICIAL_CARGA_HISTORICA = 2021;
+        private const int DelayBetweenCallsMs      = 400;
+        private const int InitialHistoricalLoadYear = 2021;
 
         private readonly FocosCalorDataProcessor _processor = new();
 
-        // fetchSemanaJson: delegate fornecido pela view (WebAutomation) que
-        // executa o fetch real dentro do Playwright e retorna o JSON bruto.
-        public async Task ExecutarAsync(
-            string caminhoMaster,
-            Func<DateTime, DateTime, Task<string>> fetchSemanaJson,
+        public async Task ExecuteAsync(
+            string masterPath,
+            Func<DateTime, DateTime, Task<string>> fetchWeekJson,
             IProgress<string> progress)
         {
-            // 1. Determine start week
-            var lastRecorded = _processor.ReadMaxWeek(caminhoMaster);
+            var lastRecorded = _processor.ReadMaxWeek(masterPath);
             DateTime startDate = lastRecorded.HasValue
-                ? EpidemiologicalWeek.WeekStart(lastRecorded.Value.Ano, lastRecorded.Value.Semana).AddDays(7)
-                : EpidemiologicalWeek.WeekStart(ANO_INICIAL_CARGA_HISTORICA, 1);
+                ? EpidemiologicalWeek.WeekStart(lastRecorded.Value.Year, lastRecorded.Value.Week).AddDays(7)
+                : EpidemiologicalWeek.WeekStart(InitialHistoricalLoadYear, 1);
 
-            // 2. Determine end week
             var lastClosed = EpidemiologicalWeek.LastClosedWeek(DateTime.Now);
 
-            // 3. Build full pending list
             var pending = BuildPendingList(startDate, lastClosed);
 
             if (pending.Count == 0)
@@ -35,21 +30,19 @@ namespace Conversor_de_Arquivos
                 return;
             }
 
-            // 4. Report initial summary
-            progress.Report(FormatResumo(pending));
+            progress.Report(FormatSummary(pending));
 
-            // 5. Process all pending weeks
             for (int i = 0; i < pending.Count; i++)
             {
                 var w = pending[i];
                 progress.Report($"Consultando semana {w.Week}/{w.Year} " +
                                 $"({w.Start:dd/MM/yyyy} a {w.End:dd/MM/yyyy})...");
 
-                SemanaFocos dados;
+                WeekHotspots data;
                 try
                 {
-                    string json = await fetchSemanaJson(w.Start, w.End);
-                    dados = ParseJson(json, w.Year, w.Week, w.Start, w.End);
+                    string json = await fetchWeekJson(w.Start, w.End);
+                    data = ParseJson(json, w.Year, w.Week, w.Start, w.End);
                 }
                 catch (Exception ex)
                 {
@@ -57,36 +50,36 @@ namespace Conversor_de_Arquivos
                     return;
                 }
 
-                await _processor.AppendSemanaAsync(dados, caminhoMaster, progress);
+                await _processor.AppendWeekAsync(data, masterPath, progress);
                 progress.Report($"Semana {w.Week}/{w.Year} gravada.");
 
                 if (i < pending.Count - 1)
-                    await Task.Delay(DELAY_ENTRE_CHAMADAS_MS);
+                    await Task.Delay(DelayBetweenCallsMs);
             }
 
             progress.Report("Coleta concluída. Master está atualizada.");
         }
 
-        private static SemanaFocos ParseJson(
-            string json, int ano, int semana, DateTime inicio, DateTime fim)
+        private static WeekHotspots ParseJson(
+            string json, int year, int week, DateTime start, DateTime end)
         {
             using var doc = JsonDocument.Parse(json);
-            var focos = new List<FocoCidade>();
+            var hotspots = new List<CityHotspot>();
 
             if (doc.RootElement.TryGetProperty("firesCount", out var firesCount) &&
                 firesCount.TryGetProperty("rows", out var rows))
             {
                 foreach (var row in rows.EnumerateArray())
                 {
-                    string municipio = row.GetProperty("municipio").GetString() ?? string.Empty;
-                    string estado    = row.GetProperty("estado").GetString()    ?? string.Empty;
-                    string countStr  = row.GetProperty("count").GetString()     ?? "0";
+                    string municipality = row.GetProperty("municipio").GetString() ?? string.Empty;
+                    string state        = row.GetProperty("estado").GetString()    ?? string.Empty;
+                    string countStr     = row.GetProperty("count").GetString()     ?? "0";
                     int count = int.TryParse(countStr, out int c) ? c : 0;
-                    focos.Add(new FocoCidade(municipio, estado, count));
+                    hotspots.Add(new CityHotspot(municipality, state, count));
                 }
             }
 
-            return new SemanaFocos(ano, semana, inicio, fim, focos);
+            return new WeekHotspots(year, week, start, end, hotspots);
         }
 
         private static List<EpidemiologicalWeek.WeekInfo> BuildPendingList(
@@ -105,7 +98,7 @@ namespace Conversor_de_Arquivos
             return list;
         }
 
-        private static string FormatResumo(List<EpidemiologicalWeek.WeekInfo> pending)
+        private static string FormatSummary(List<EpidemiologicalWeek.WeekInfo> pending)
         {
             int total = pending.Count;
 
@@ -117,8 +110,8 @@ namespace Conversor_de_Arquivos
                     string nums = string.Join(", ", pending.Select(w => w.Week));
                     return $"{total} semana(s) pendente(s): {nums} de {groups[0].Key}";
                 }
-                string lista = string.Join(", ", pending.Select(w => $"{w.Week}/{w.Year}"));
-                return $"{total} semana(s) pendente(s): {lista}";
+                string list = string.Join(", ", pending.Select(w => $"{w.Week}/{w.Year}"));
+                return $"{total} semana(s) pendente(s): {list}";
             }
 
             var first = pending.First();

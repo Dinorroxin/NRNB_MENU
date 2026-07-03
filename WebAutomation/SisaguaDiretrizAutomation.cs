@@ -13,18 +13,18 @@ namespace WebAutomation
     {
         private const string UrlLogin = "https://sisagua.saude.gov.br/sisagua/paginaExterna.jsf";
 
-        private static readonly List<string> Parametros =
+        private static readonly List<string> Parameters =
         [
             "Cloro Residual Livre",
             "Turbidez",
             "Coliformes Totais/E. coli"
         ];
 
-        public async Task<SisaguaDiretrizResult> BaixarRelatoriosMensaisAsync(
+        public async Task<SisaguaDiretrizResult> DownloadMonthlyReportsAsync(
             string email,
-            string senha,
-            string pastaDestino,
-            List<int> anos,
+            string password,
+            string destinationFolder,
+            List<int> years,
             IProgress<string>? progress = null)
         {
             var result = new SisaguaDiretrizResult();
@@ -47,7 +47,7 @@ namespace WebAutomation
                 await page.ClickAsync("#j_idt35\\:btnEntrar");
                 await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
                 await page.FillAsync("#email", email);
-                await page.FillAsync("#senha", senha);
+                await page.FillAsync("#senha", password);
                 await page.ClickAsync("button:has-text('Entrar')");
                 await page.WaitForURLAsync(url => !url.Contains("paginaExterna"),
                     new PageWaitForURLOptions { Timeout = 60000 });
@@ -55,16 +55,16 @@ namespace WebAutomation
 
                 // Navega para diretriz
                 progress?.Report("Navegando para relatórios...");
-                var menuRelatorios = page.Locator("span:has-text('RELATÓRIOS')");
-                await menuRelatorios.HoverAsync();
+                var reportsMenu = page.Locator("span:has-text('RELATÓRIOS')");
+                await reportsMenu.HoverAsync();
                 await Task.Delay(1000);
 
                 var linkDiretriz = page.Locator(
                     "a.ui-menuitem-link[href*='relDiretrizNacionalParametrosBasicos.jsf']");
                 string? href = await linkDiretriz.GetAttributeAsync("href");
-                string urlCompleta = href!.StartsWith("http")
+                string fullUrl = href!.StartsWith("http")
                     ? href : "https://sisagua.saude.gov.br" + href;
-                await page.GotoAsync(urlCompleta);
+                await page.GotoAsync(fullUrl);
                 await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
                 // Abrangência
@@ -78,26 +78,26 @@ namespace WebAutomation
                 await radioMensal.EvaluateAsync("el => el.click()");
                 await Task.Delay(3000);
 
-                // Loop anos → parâmetros
-                foreach (var ano in anos)
+                // Loop years → parameters
+                foreach (var year in years)
                 {
-                    progress?.Report($"Selecionando ano {ano}...");
+                    progress?.Report($"Selecionando ano {year}...");
                     await page.ClickAsync("#j_idt129_label");
                     await Task.Delay(500);
-                    await page.ClickAsync($"li[data-label='{ano}']");
+                    await page.ClickAsync($"li[data-label='{year}']");
                     await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
                     await Task.Delay(2000);
 
-                    int total = Parametros.Count;
+                    int total = Parameters.Count;
                     for (int i = 0; i < total; i++)
                     {
-                        var parametro = Parametros[i];
-                        progress?.Report($"[{ano}] Baixando {parametro} ({i + 1}/{total})...");
+                        var parameter = Parameters[i];
+                        progress?.Report($"[{year}] Baixando {parameter} ({i + 1}/{total})...");
 
                         await page.ClickAsync("#j_idt145_label");
                         await Task.Delay(500);
-                        var itemParametro = page.Locator($"li[data-label='{parametro}']");
-                        await itemParametro.EvaluateAsync("el => el.click()");
+                        var itemParameter = page.Locator($"li[data-label='{parameter}']");
+                        await itemParameter.EvaluateAsync("el => el.click()");
                         await Task.Delay(500);
 
                         var downloadTask = page.WaitForDownloadAsync(new PageWaitForDownloadOptions
@@ -108,15 +108,15 @@ namespace WebAutomation
                             "document.getElementById('gerarRelatorioExcel').click()");
                         var download = await downloadTask;
 
-                        string parametroSafe = string.Concat(
-                            parametro.Split(Path.GetInvalidFileNameChars()));
-                        string nomeArquivo =
-                            $"Relatório Diretriz Nacional(MESES) - {parametroSafe} - {ano}.xls";
-                        string destino = Path.Combine(pastaDestino, nomeArquivo);
+                        string safeParameter = string.Concat(
+                            parameter.Split(Path.GetInvalidFileNameChars()));
+                        string fileName =
+                            $"Relatório Diretriz Nacional(MESES) - {safeParameter} - {year}.xls";
+                        string destination = Path.Combine(destinationFolder, fileName);
 
-                        if (File.Exists(destino)) File.Delete(destino);
-                        await download.SaveAsAsync(destino);
-                        result.DownloadedFiles.Add(destino);
+                        if (File.Exists(destination)) File.Delete(destination);
+                        await download.SaveAsAsync(destination);
+                        result.DownloadedFiles.Add(destination);
                     }
                 }
 

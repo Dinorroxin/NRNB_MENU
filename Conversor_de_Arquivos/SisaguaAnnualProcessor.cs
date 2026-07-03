@@ -1,25 +1,25 @@
-﻿using System.Data;
+using System.Data;
 using ExcelDataReader;
 using OfficeOpenXml;
 
 namespace Conversor_de_Arquivos
 {
-    public class ProcessamentoAnualResult
+    public class AnnualProcessingResult
     {
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
         public int RowsAdded { get; set; }
-        public string Parametro { get; set; } = string.Empty;
+        public string Parameter { get; set; } = string.Empty;
     }
 
-    public class SisaguaAnualDataProcessor
+    public class SisaguaAnnualDataProcessor
     {
-        public async Task<ProcessamentoAnualResult> ProcessarAsync(
-            string pathArquivoBruto,
-            string pathMestre,
+        public async Task<AnnualProcessingResult> ProcessAsync(
+            string rawFilePath,
+            string masterPath,
             IProgress<string>? progress = null)
         {
-            var result = new ProcessamentoAnualResult();
+            var result = new AnnualProcessingResult();
 
             try
             {
@@ -28,85 +28,80 @@ namespace Conversor_de_Arquivos
                     System.Text.CodePagesEncodingProvider.Instance);
 
                 DataSet ds;
-                using (var stream = File.Open(pathArquivoBruto,
+                using (var stream = File.Open(rawFilePath,
                            FileMode.Open, FileAccess.Read))
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                     ds = reader.AsDataSet();
 
                 var sheet = ds.Tables[0];
 
-                // Metadados
-                string periodo = sheet.Rows[2][1]?.ToString() ?? string.Empty; // "2020 a 2026"
-                string parametro = sheet.Rows[3][1]?.ToString() ?? string.Empty;
-                result.Parametro = parametro;
+                string period = sheet.Rows[2][1]?.ToString() ?? string.Empty;
+                string parameter = sheet.Rows[3][1]?.ToString() ?? string.Empty;
+                result.Parameter = parameter;
 
-                // Extrai anos da linha 6 (cols 5 em diante, até "TOTAL NO PERÍODO")
-                var anos = new List<(int ano, int colIndex)>();
+                var years = new List<(int Year, int ColIndex)>();
                 for (int c = 5; c < sheet.Columns.Count; c++)
                 {
                     string header = sheet.Rows[6][c]?.ToString()?.Trim() ?? string.Empty;
-                    if (int.TryParse(header, out int ano))
-                        anos.Add((ano, c));
+                    if (int.TryParse(header, out int year))
+                        years.Add((year, c));
                 }
 
-                // Extrai range do período para limpeza no master
-                int anoInicial = anos.Count > 0 ? anos.Min(a => a.ano) : DateTime.Now.Year;
-                int anoFinal = anos.Count > 0 ? anos.Max(a => a.ano) : DateTime.Now.Year;
+                int startYear = years.Count > 0 ? years.Min(a => a.Year) : DateTime.Now.Year;
+                int endYear   = years.Count > 0 ? years.Max(a => a.Year) : DateTime.Now.Year;
 
-                progress?.Report($"Processando {parametro} ({periodo})...");
+                progress?.Report($"Processando {parameter} ({period})...");
 
                 var rows = new List<string[]>();
 
                 for (int i = 0; i < 52; i++)
                 {
-                    var rowPerc = sheet.Rows[7 + i]; // Tabela 1 (%)
-                    var rowN = sheet.Rows[62 + i]; // Tabela 2 (N)
+                    var rowPerc = sheet.Rows[7 + i];
+                    var rowN = sheet.Rows[62 + i];
 
-                    string municipio = rowPerc[0]?.ToString() ?? string.Empty;
+                    string municipality = rowPerc[0]?.ToString() ?? string.Empty;
                     string codIbge = rowPerc[1]?.ToString() ?? string.Empty;
-                    string populacao = rowPerc[2]?.ToString() ?? string.Empty;
-                    string regional = RondoniaRegionais.ObterRegional(municipio);
+                    string population = rowPerc[2]?.ToString() ?? string.Empty;
+                    string region = RondoniaRegionais.GetRegion(municipality);
 
-                    foreach (var (ano, colIndex) in anos)
+                    foreach (var (year, colIndex) in years)
                     {
                         string rawPerc = rowPerc[colIndex]?.ToString() ?? string.Empty;
                         string rawN = rowN[colIndex]?.ToString() ?? string.Empty;
 
-                        bool semDados = string.IsNullOrWhiteSpace(rawPerc)
-                                     && string.IsNullOrWhiteSpace(rawN);
-                        if (semDados) continue;
+                        bool noData = string.IsNullOrWhiteSpace(rawPerc)
+                                   && string.IsNullOrWhiteSpace(rawN);
+                        if (noData) continue;
 
                         rows.Add([
-                            municipio,
+                            municipality,
                             codIbge,
-                            populacao,
-                            regional,
-                            ano.ToString(),
-                            LimparPercentual(rawPerc),
-                            LimparN(rawN),
-                            parametro
+                            population,
+                            region,
+                            year.ToString(),
+                            CleanPercentage(rawPerc),
+                            CleanN(rawN),
+                            parameter
                         ]);
                     }
                 }
 
-                // Atualiza master
                 progress?.Report("Atualizando planilha mestre anual...");
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
                 ExcelPackage package;
                 ExcelWorksheet ws;
 
-                if (File.Exists(pathMestre))
+                if (File.Exists(masterPath))
                 {
-                    package = new ExcelPackage(new FileInfo(pathMestre));
+                    package = new ExcelPackage(new FileInfo(masterPath));
                     ws = package.Workbook.Worksheets[0];
 
-                    // Remove só o range selecionado (preserva anos fora do intervalo)
                     int lastRow = ws.Dimension?.End.Row ?? 1;
                     for (int r = lastRow; r >= 2; r--)
                     {
-                        if (int.TryParse(ws.Cells[r, 5].Text, out int anoRow)
-                            && anoRow >= anoInicial && anoRow <= anoFinal)
+                        if (int.TryParse(ws.Cells[r, 5].Text, out int yearRow)
+                            && yearRow >= startYear && yearRow <= endYear)
                             ws.DeleteRow(r);
                     }
                 }
@@ -122,7 +117,6 @@ namespace Conversor_de_Arquivos
                         ws.Cells[1, c + 1].Value = headers[c];
                 }
 
-                // Append ordenado por Periodo
                 int nextRow = (ws.Dimension?.End.Row ?? 1) + 1;
                 foreach (var row in rows.OrderBy(r => r[4]))
                 {
@@ -131,7 +125,7 @@ namespace Conversor_de_Arquivos
                     nextRow++;
                 }
 
-                await package.SaveAsAsync(new FileInfo(pathMestre));
+                await package.SaveAsAsync(new FileInfo(masterPath));
                 package.Dispose();
 
                 result.RowsAdded = rows.Count;
@@ -146,13 +140,13 @@ namespace Conversor_de_Arquivos
             return result;
         }
 
-        private static string LimparPercentual(string raw)
+        private static string CleanPercentage(string raw)
         {
             if (string.IsNullOrWhiteSpace(raw) || raw.Trim() == "-") return "0";
             return raw.Replace("%", " ").Trim();
         }
 
-        private static string LimparN(string raw)
+        private static string CleanN(string raw)
         {
             if (string.IsNullOrWhiteSpace(raw) || raw.Trim() == "-") return "0";
             return raw.Trim();

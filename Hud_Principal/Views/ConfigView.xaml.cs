@@ -1,7 +1,7 @@
-﻿using Modulo_Seguranca;
+using Modulo_Seguranca;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using MessageBox = System.Windows.MessageBox;
 using TextBox = System.Windows.Controls.TextBox;
 
@@ -19,62 +19,66 @@ namespace Hud_Principal.Views
 
         private void ConfigView_Loaded(object sender, RoutedEventArgs e)
         {
-            var service = new ConfiguracaoService();
+            var service = new ConfigurationService();
 
             try
             {
-                var config = service.Carregar();
+                var config = service.Load();
 
                 TxtEmail.Text = config.Vigiagua.Email;
-                TxtPassword.Password = config.Vigiagua.Senha;
-                TxtRawFolder.Text = config.Vigiagua.PastaArquivosBrutos;
-                TxtMonthlyDirectiveFolder.Text = config.Vigiagua.PastaCumprimentoDaDiretrizMensal;
-                TxtAnnualDirectiveFolder.Text = config.Vigiagua.PastaCumprimentoDaDiretrizAnual;
-                TxtControlFolder.Text = config.Vigiagua.PastaControle;
+                TxtPassword.Password = config.Vigiagua.Password;
+                TxtRawFolder.Text = config.Vigiagua.RawFilesFolder;
+                TxtMonthlyDirectiveFolder.Text = config.Vigiagua.MonthlyDirectiveFolder;
+                TxtAnnualDirectiveFolder.Text = config.Vigiagua.AnnualDirectiveFolder;
+                TxtControlFolder.Text = config.Vigiagua.ControlFolder;
 
-                TxtVigiarPastaQueimadas.Text     = config.Vigiar.PastaQueimadas;
-                TxtVigiarPastaArquivosBrutos.Text = config.Vigiar.PastaArquivosBrutos;
-                TxtVigiarPastaIqAr.Text           = config.Vigiar.PastaIqAr;
+                TxtVigiarWildfiresFolder.Text = config.Vigiar.WildfiresFolder;
+                TxtVigiarRawFolder.Text       = config.Vigiar.RawFilesFolder;
+                TxtVigiarIqArFolder.Text      = config.Vigiar.IqArFolder;
 
-                TxtGalUsuario.Text = config.Gal.Usuario;
-                TxtGalSenha.Password = config.Gal.Senha;
-                TxtGalModulo.Text = config.Gal.Modulo;
-                TxtGalLaboratorio.Text = config.Gal.Laboratorio;
-                TxtGalPastaBrutaRelatoriosMensal.Text = config.Gal.PastaBrutaRelatoriosMensalGal;
-                TxtGalPastaRelatoriosMensal.Text = config.Gal.PastaRelatoriosMensalGal;
+                TxtGalUsername.Text = config.Gal.Username;
+                TxtGalPassword.Password = config.Gal.Password;
+                TxtGalModule.Text = config.Gal.Module;
+                TxtGalLaboratory.Text = config.Gal.Laboratory;
+                TxtGalRawFolder.Text = config.Gal.GalMonthlyRawFolder;
+                TxtGalMonthlyFolder.Text = config.Gal.GalMonthlyFolder;
             }
-            catch
+            catch (FileNotFoundException)
             {
-                // Se não existir ainda, deixa os campos em branco (comportamento padrão já é esse)
+                // config.json not yet created — leave fields at defaults
+            }
+            catch (Exception)
+            {
+                // Malformed config — leave fields at defaults
             }
         }
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            var service = new ConfiguracaoService();
-            Configuracao config;
-            try { config = service.Carregar(); }
-            catch { config = new Configuracao(); }
+            var service = new ConfigurationService();
+            Configuration config;
+            try { config = service.Load(); }
+            catch { config = new Configuration(); }
 
             config.Vigiagua.Email = TxtEmail.Text;
-            config.Vigiagua.Senha = TxtPassword.Password;
-            config.Vigiagua.PastaArquivosBrutos = TxtRawFolder.Text;
-            config.Vigiagua.PastaCumprimentoDaDiretrizMensal = TxtMonthlyDirectiveFolder.Text;
-            config.Vigiagua.PastaCumprimentoDaDiretrizAnual = TxtAnnualDirectiveFolder.Text;
-            config.Vigiagua.PastaControle = TxtControlFolder.Text;
+            config.Vigiagua.Password = TxtPassword.Password;
+            config.Vigiagua.RawFilesFolder = TxtRawFolder.Text;
+            config.Vigiagua.MonthlyDirectiveFolder = TxtMonthlyDirectiveFolder.Text;
+            config.Vigiagua.AnnualDirectiveFolder = TxtAnnualDirectiveFolder.Text;
+            config.Vigiagua.ControlFolder = TxtControlFolder.Text;
 
-            config.Vigiar.PastaQueimadas      = TxtVigiarPastaQueimadas.Text;
-            config.Vigiar.PastaArquivosBrutos = TxtVigiarPastaArquivosBrutos.Text;
-            config.Vigiar.PastaIqAr           = TxtVigiarPastaIqAr.Text;
+            config.Vigiar.WildfiresFolder = TxtVigiarWildfiresFolder.Text;
+            config.Vigiar.RawFilesFolder  = TxtVigiarRawFolder.Text;
+            config.Vigiar.IqArFolder      = TxtVigiarIqArFolder.Text;
 
-            config.Gal.Usuario = TxtGalUsuario.Text;
-            config.Gal.Senha = TxtGalSenha.Password;
-            config.Gal.Modulo = TxtGalModulo.Text;
-            config.Gal.Laboratorio = TxtGalLaboratorio.Text;
-            config.Gal.PastaBrutaRelatoriosMensalGal = TxtGalPastaBrutaRelatoriosMensal.Text;
-            config.Gal.PastaRelatoriosMensalGal = TxtGalPastaRelatoriosMensal.Text;
+            config.Gal.Username = TxtGalUsername.Text;
+            config.Gal.Password = TxtGalPassword.Password;
+            config.Gal.Module = TxtGalModule.Text;
+            config.Gal.Laboratory = TxtGalLaboratory.Text;
+            config.Gal.GalMonthlyRawFolder = TxtGalRawFolder.Text;
+            config.Gal.GalMonthlyFolder = TxtGalMonthlyFolder.Text;
 
-            service.Salvar(config);
+            service.Save(config);
             MessageBox.Show("Configurações salvas com sucesso!");
         }
 
@@ -87,14 +91,14 @@ namespace Hud_Principal.Views
         private void BtnVigiarSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(VigiarSection);
 
-        private void BtnVigiarQueimadasFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtVigiarPastaQueimadas);
+        private void BtnVigiarWildfiresFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigiarWildfiresFolder);
 
-        private void BtnVigiarArquivosBrutosFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtVigiarPastaArquivosBrutos);
+        private void BtnVigiarRawFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtVigiarRawFolder);
 
         private void BtnVigiarIqArFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtVigiarPastaIqAr);
+            => SelectFolder(TxtVigiarIqArFolder);
 
         private void ToggleSection(StackPanel section)
         {
@@ -114,17 +118,17 @@ namespace Hud_Principal.Views
 
         private void BtnToggleGalPassword_Click(object sender, RoutedEventArgs e)
         {
-            if (TxtGalSenhaVisible.Visibility == Visibility.Collapsed)
+            if (TxtGalPasswordVisible.Visibility == Visibility.Collapsed)
             {
-                TxtGalSenhaVisible.Text = TxtGalSenha.Password;
-                TxtGalSenhaVisible.Visibility = Visibility.Visible;
-                TxtGalSenha.Visibility = Visibility.Collapsed;
+                TxtGalPasswordVisible.Text = TxtGalPassword.Password;
+                TxtGalPasswordVisible.Visibility = Visibility.Visible;
+                TxtGalPassword.Visibility = Visibility.Collapsed;
             }
             else
             {
-                TxtGalSenha.Password = TxtGalSenhaVisible.Text;
-                TxtGalSenha.Visibility = Visibility.Visible;
-                TxtGalSenhaVisible.Visibility = Visibility.Collapsed;
+                TxtGalPassword.Password = TxtGalPasswordVisible.Text;
+                TxtGalPassword.Visibility = Visibility.Visible;
+                TxtGalPasswordVisible.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -132,13 +136,13 @@ namespace Hud_Principal.Views
         {
             if (TxtPasswordVisible.Visibility == Visibility.Collapsed)
             {
-                TxtPasswordVisible.Text = TxtPassword.Password; // copia o que tem no PasswordBox
+                TxtPasswordVisible.Text = TxtPassword.Password;
                 TxtPasswordVisible.Visibility = Visibility.Visible;
                 TxtPassword.Visibility = Visibility.Collapsed;
             }
             else
             {
-                TxtPassword.Password = TxtPasswordVisible.Text; // copia de volta
+                TxtPassword.Password = TxtPasswordVisible.Text;
                 TxtPassword.Visibility = Visibility.Visible;
                 TxtPasswordVisible.Visibility = Visibility.Collapsed;
             }
@@ -156,12 +160,11 @@ namespace Hud_Principal.Views
         private void BtnControlFolder_Click(object sender, RoutedEventArgs e)
             => SelectFolder(TxtControlFolder);
 
-        private void BtnGalBrutaRelatoriosMensalFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtGalPastaBrutaRelatoriosMensal);
+        private void BtnGalRawFolderClick(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtGalRawFolder);
 
-        private void BtnGalRelatoriosMensalFolder_Click(object sender, RoutedEventArgs e)
-            => SelectFolder(TxtGalPastaRelatoriosMensal);
-
+        private void BtnGalMonthlyFolderClick(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtGalMonthlyFolder);
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void SelectFolder(TextBox field)

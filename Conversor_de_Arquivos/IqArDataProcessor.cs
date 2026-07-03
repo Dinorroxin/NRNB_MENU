@@ -6,39 +6,37 @@ namespace Conversor_de_Arquivos
 {
     public class IqArDataProcessor
     {
-        // Sobrescreve IQAR_MESTRE.xlsx inteiro a partir do CSV bruto do Fiocruz Shiny.
-        public async Task ProcessarAsync(
+        public async Task ProcessAsync(
             string csvPath,
-            string pathMestre,
+            string masterPath,
             IProgress<string>? progress = null)
         {
-            var linhas = await File.ReadAllLinesAsync(csvPath, Encoding.UTF8);
-            if (linhas.Length < 2)
+            var lines = await File.ReadAllLinesAsync(csvPath, Encoding.UTF8);
+            if (lines.Length < 2)
             {
                 progress?.Report("CSV vazio ou sem linhas de dados.");
                 return;
             }
 
-            // Mapear colunas pelo header para não depender de ordem fixa.
-            var header = linhas[0].Split(';');
+            var header = lines[0].Split(';');
             int idxName  = IndexOf(header, "name_muni");
             int idxDate  = IndexOf(header, "date");
             int idxIqar  = IndexOf(header, "iqar");
             int idxLabel = IndexOf(header, "label");
 
-            var rows       = new List<(string Municipio, string Regional, DateTime Date, double Iqar, string Classificacao, string Qualidade)>();
-            int descartados = 0;
+            var rows       = new List<(string Municipality, string Region, DateTime Date, double Iqar, string Classification, string Quality)>();
+            int discarded = 0;
 
-            for (int i = 1; i < linhas.Length; i++)
+            for (int i = 1; i < lines.Length; i++)
             {
-                if (string.IsNullOrWhiteSpace(linhas[i])) continue;
+                if (string.IsNullOrWhiteSpace(lines[i])) continue;
 
-                var cols = linhas[i].Split(';');
+                var cols = lines[i].Split(';');
 
-                string dateStr = Coluna(cols, idxDate);
+                string dateStr = Column(cols, idxDate);
                 if (dateStr.Equals("NA", StringComparison.OrdinalIgnoreCase))
                 {
-                    descartados++;
+                    discarded++;
                     continue;
                 }
 
@@ -46,40 +44,36 @@ namespace Conversor_de_Arquivos
                         DateTimeStyles.None, out DateTime date))
                     continue;
 
-                // Remove sufixo " - RO" do nome do município.
-                string nome = Coluna(cols, idxName);
-                if (nome.EndsWith(" - RO", StringComparison.OrdinalIgnoreCase))
-                    nome = nome[..^5].Trim();
+                string name = Column(cols, idxName);
+                if (name.EndsWith(" - RO", StringComparison.OrdinalIgnoreCase))
+                    name = name[..^5].Trim();
 
-                string chave    = RemoverAcentos(nome.Trim().ToUpperInvariant());
-                string regional = RondoniaRegionais.ObterRegional(chave);
-                if (regional == "Não identificado") regional = "Sem Registro";
+                string key    = StripAccents(name.Trim().ToUpperInvariant());
+                string region = RondoniaRegionais.GetRegion(key);
+                if (region == "Não identificado") region = "Sem Registro";
 
-                // IQAr: aceita vírgula ou ponto como separador decimal.
-                string iqarStr = Coluna(cols, idxIqar).Replace(',', '.');
+                string iqarStr = Column(cols, idxIqar).Replace(',', '.');
                 double.TryParse(iqarStr, NumberStyles.Number, CultureInfo.InvariantCulture, out double iqar);
 
-                // Decompõe "N1 - Boa" → Classificação = "N1", Qualidade = "Boa".
-                string label = Coluna(cols, idxLabel);
-                string classificacao, qualidade;
+                string label = Column(cols, idxLabel);
+                string classification, quality;
                 int sep = label.IndexOf(" - ", StringComparison.Ordinal);
                 if (sep >= 0)
                 {
-                    classificacao = label[..sep].Trim();
-                    qualidade     = label[(sep + 3)..].Trim();
+                    classification = label[..sep].Trim();
+                    quality        = label[(sep + 3)..].Trim();
                 }
                 else
                 {
-                    classificacao = label;
-                    qualidade     = string.Empty;
+                    classification = label;
+                    quality        = string.Empty;
                 }
 
-                rows.Add((nome, regional, date, iqar, classificacao, qualidade));
+                rows.Add((name, region, date, iqar, classification, quality));
             }
 
-            // Overwrite total: parte sempre de um pacote em branco.
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var fileInfo = new FileInfo(pathMestre);
+            var fileInfo = new FileInfo(masterPath);
             fileInfo.Directory?.Create();
 
             using var pkg = new ExcelPackage();
@@ -95,29 +89,29 @@ namespace Conversor_de_Arquivos
 
             for (int r = 0; r < rows.Count; r++)
             {
-                var (municipio, regional, date, iqar, classificacao, qualidade) = rows[r];
+                var (municipality, region, date, iqar, classification, quality) = rows[r];
                 int row = r + 2;
-                ws.Cells[row, 1].Value = municipio;
-                ws.Cells[row, 2].Value = regional;
+                ws.Cells[row, 1].Value = municipality;
+                ws.Cells[row, 2].Value = region;
                 ws.Cells[row, 3].Value = date.Date;
                 ws.Cells[row, 3].Style.Numberformat.Format = "dd/MM/yyyy";
                 ws.Cells[row, 4].Value = date.ToString("HH:mm");
                 ws.Cells[row, 5].Value = iqar;
-                ws.Cells[row, 6].Value = classificacao;
-                ws.Cells[row, 7].Value = qualidade;
+                ws.Cells[row, 6].Value = classification;
+                ws.Cells[row, 7].Value = quality;
             }
 
             ws.Cells[ws.Dimension.Address].AutoFitColumns();
 
             await pkg.SaveAsAsync(fileInfo);
 
-            string resumo = $"Master atualizado: {rows.Count} linha(s) gravada(s).";
-            if (descartados > 0)
-                resumo += $" {descartados} linha(s) descartada(s) por date=NA.";
-            progress?.Report(resumo);
+            string summary = $"Master atualizado: {rows.Count} linha(s) gravada(s).";
+            if (discarded > 0)
+                summary += $" {discarded} linha(s) descartada(s) por date=NA.";
+            progress?.Report(summary);
         }
 
-        private static string Coluna(string[] cols, int idx)
+        private static string Column(string[] cols, int idx)
             => idx >= 0 && idx < cols.Length ? cols[idx].Trim() : string.Empty;
 
         private static int IndexOf(string[] header, string name)
@@ -128,9 +122,9 @@ namespace Conversor_de_Arquivos
             return -1;
         }
 
-        private static string RemoverAcentos(string texto)
+        private static string StripAccents(string text)
         {
-            string norm = texto.Normalize(NormalizationForm.FormD);
+            string norm = text.Normalize(NormalizationForm.FormD);
             var sb = new StringBuilder(norm.Length);
             foreach (char c in norm)
                 if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)

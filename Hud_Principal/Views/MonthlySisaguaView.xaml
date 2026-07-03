@@ -1,128 +1,128 @@
-﻿<local:BaseView x:Class="Hud_Principal.Views.MonthlySisaguaView"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Hud_Principal.Views"
-      mc:Ignorable="d">
+<views:BaseView x:Class="Hud_Principal.Views.MonthlySisaguaView"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:views="clr-namespace:Hud_Principal.Views"
+               Background="#0d0f0e">
 
-    <Grid>
+    <DockPanel>
 
-        <!-- Botão Voltar, mesmo padrão do ConfigView -->
-        <Button
-            FontSize="15"
-            Content="← Voltar"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Style="{StaticResource SidebarButton}"
-            Padding="10,6"
-            Margin="20,20,0,0"
-            Click="BtnHome_Click"/>
-
-        <!-- Conteúdo central -->
-        <StackPanel
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            MaxWidth="1000">
-
-            <Image
-                Source="/Assets/Vigiagua_Logo.png"
-                Width="200"
-                Height="200"
-                Margin="0,0,0,30"/>
-
-            <TextBlock
-                Text="Processo de Automação de Diretrizes do Sisagua"
-                FontSize="27"
-                FontWeight="Bold"
-                Foreground="#e5e7e6"
-                TextAlignment="Center"
-                TextWrapping="Wrap"
-                Margin="0,0,0,20"/>
-
-            <TextBlock
-                Text="Este processo automatiza a coleta e o tratamento dos dados de cumprimento das diretrizes mensais do Sisagua, atualizando a planilha mestra utilizada pelos dashboards do Power BI. Os passos são:"
-                FontSize="20"
-                Foreground="#b5b8b7"
-                TextAlignment="Center"
-                TextWrapping="Wrap"
-                Margin="0,20,0,15"/>
-            <TextBlock
-                Text="1. Leitura da planilha bruta baixada do Sisagua "
-                FontSize="20"
-                Foreground="#b5b8b7"
-                TextAlignment="Left"
-                TextWrapping="Wrap"
-                Margin="0,0,0,5"/>
-            <TextBlock
-                Text="2. Remoção dos dados do ano corrente já existentes na planilha mestra."
-                FontSize="20"
-                Foreground="#b5b8b7"
-                TextAlignment="Left"
-                TextWrapping="Wrap"
-                Margin="0,0,0,5"/>
-            <TextBlock
-                Text="3. Conversão dos dados para o formato longo."
-                FontSize="20"
-                Foreground="#b5b8b7"
-                TextAlignment="Left"
-                TextWrapping="Wrap"
-                Margin="0,0,0,5"/>
-            <TextBlock
-                Text="4. Inclusão dos novos registros atualizados."
-                FontSize="20"
-                Foreground="#b5b8b7"
-                TextAlignment="Left"
-                TextWrapping="Wrap"
-                Margin="0,0,0,5"/>
-
-            <TextBlock
-                Text="Selecionar anos:"
-                FontSize="16"
-                Foreground="#b5b8b7"
-                Margin="0,20,0,8"/>
-
-            <ListBox
-                x:Name="LstAnos"
-                SelectionMode="Multiple"
-                MaxHeight="100"
-                Background="#1a1a1a"
-                Foreground="#e5e7e6"
-                BorderBrush="#333"
-                FontSize="15"
-                Margin="0,0,0,10"/>
-
-            <Button
-                x:Name="StartMonthlySisagua"
-                Content="Iniciar Processo"
-                FontSize="30"
-                Padding="20,10"
-                Margin="0,20,0,0"
-                HorizontalAlignment="Center"
+        <Button DockPanel.Dock="Top"
+                Content="&#x2190; Voltar"
+                HorizontalAlignment="Left"
                 Style="{StaticResource SidebarButton}"
-                Click="BtnStartMonthly_Click"/>
+                FontSize="13"
+                Padding="10,6"
+                Margin="20,16,0,0"
+                Click="BtnHome_Click"/>
 
-            <TextBlock
-                x:Name="TxtStatus"
-                Text=""
-                FontSize="16"
-                Foreground="#b5b8b7"
-                TextAlignment="Center"
-                TextWrapping="Wrap"
-                Margin="0,15,0,0"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="48,24,48,40">
 
-        </StackPanel>
-        
-        <!-- Botão Voltar, mesmo padrão do ConfigView -->
-        <Button
-            FontSize="15"
-            Content="← Voltar"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Style="{StaticResource SidebarButton}"
-            Padding="10,6"
-            Margin="20,20,0,0"
-            Click="BtnHome_Click"/>
+                <!-- Header -->
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="Vigiagua &#x2014; Vigilância da Qualidade da Água para Consumo Humano"
+                               FontSize="11" Foreground="#666666"/>
+                    <TextBlock Text="Diretriz Nacional &#x2014; Mensal"
+                               FontSize="22" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Sisagua &#xB7; Cloro Residual Livre &#xB7; Turbidez &#xB7; Coliformes &#xB7; Rond&#xF4;nia"
+                               FontSize="14" Foreground="#999999"/>
+                </StackPanel>
 
-    </Grid>
-</local:BaseView>
+                <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
+
+                <!-- Logo -->
+                <Image Width="140" Height="140"
+                       Margin="0,0,0,24"
+                       HorizontalAlignment="Left"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Source="/Assets/Vigiagua_Logo.png"/>
+
+                <!-- Steps -->
+                <TextBlock Text="O SISTEMA IR&#xC1;:"
+                           FontSize="11" Foreground="#555555"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,12"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Border Background="#1e3a1e" CornerRadius="12"
+                            Width="24" Height="24" Margin="0,0,10,0">
+                        <TextBlock Text="1" Foreground="#4caf50" FontSize="12" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Acessar o Sisagua com as credenciais configuradas"
+                               Foreground="#cccccc" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Border Background="#1e3a1e" CornerRadius="12"
+                            Width="24" Height="24" Margin="0,0,10,0">
+                        <TextBlock Text="2" Foreground="#4caf50" FontSize="12" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Gerar e baixar os relat&#xF3;rios mensais de diretriz"
+                               Foreground="#cccccc" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <Border Background="#1e3a1e" CornerRadius="12"
+                            Width="24" Height="24" Margin="0,0,10,0">
+                        <TextBlock Text="3" Foreground="#4caf50" FontSize="12" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Processar e converter os dados para o formato longo"
+                               Foreground="#cccccc" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,32">
+                    <Border Background="#1e3a1e" CornerRadius="12"
+                            Width="24" Height="24" Margin="0,0,10,0">
+                        <TextBlock Text="4" Foreground="#4caf50" FontSize="12" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="Atualizar a planilha mestra utilizada pelo Power BI"
+                               Foreground="#cccccc" FontSize="13" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
+
+                <!-- Parameters -->
+                <TextBlock Text="PAR&#xC2;METROS"
+                           FontSize="11" Foreground="#555555"
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,16"/>
+
+                <StackPanel Margin="0,0,0,32">
+                    <TextBlock Text="Anos a processar" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
+                    <TextBlock Text="Segure Ctrl para selecionar m&#xFA;ltiplos anos."
+                               FontSize="11" Foreground="#555555" Margin="0,0,0,8"/>
+                    <ListBox x:Name="LstYears"
+                             SelectionMode="Multiple"
+                             Height="120"
+                             Background="#1a1a1a"
+                             Foreground="#e5e7e6"
+                             BorderBrush="#333333"
+                             BorderThickness="1"
+                             FontSize="13"
+                             Width="200"
+                             HorizontalAlignment="Left"/>
+                </StackPanel>
+
+                <!-- Action -->
+                <Button x:Name="StartMonthlySisagua"
+                        Content="Iniciar Processo"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource SidebarButton}"
+                        Padding="16,8"
+                        Margin="0,0,0,16"
+                        Click="BtnStartMonthly_Click"/>
+
+                <TextBlock x:Name="TxtStatus"
+                           Foreground="#666666"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+
+</views:BaseView>

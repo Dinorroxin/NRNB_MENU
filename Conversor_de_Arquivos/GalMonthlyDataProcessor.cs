@@ -1,20 +1,20 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 using OfficeOpenXml;
 
 namespace Conversor_de_Arquivos
 {
-    public class ProcessamentoGalMensalResult
+    public class GalMonthlyProcessingResult
     {
-        public bool Sucesso { get; set; }
-        public string? Erro { get; set; }
-        public int LinhasProcessadas { get; set; }
-        public int MunicipiosEncontrados { get; set; }
+        public bool Success { get; set; }
+        public string? ErrorMessage { get; set; }
+        public int RowsProcessed { get; set; }
+        public int MunicipalitiesFound { get; set; }
     }
 
     public class GalMonthlyDataProcessor
     {
-        private static readonly Dictionary<string, (string Nome, int Ordem)> _mesMap = new()
+        private static readonly Dictionary<string, (string Name, int Order)> _monthMap = new()
         {
             ["Jan"]  = ("Janeiro",    1),
             ["Fev"]  = ("Fevereiro",  2),
@@ -30,69 +30,68 @@ namespace Conversor_de_Arquivos
             ["Dez"]  = ("Dezembro",  12),
         };
 
-        private static readonly Dictionary<string, int> _ordemPorNome =
-            _mesMap.ToDictionary(kv => kv.Value.Nome, kv => kv.Value.Ordem);
+        private static readonly Dictionary<string, int> _orderByName =
+            _monthMap.ToDictionary(kv => kv.Value.Name, kv => kv.Value.Order);
 
-        private sealed class LinhaGal
+        private sealed class GalRow
         {
-            public string Municipio { get; init; } = string.Empty;
-            public string Regional  { get; init; } = string.Empty;
-            public int    Ano       { get; init; }
-            public string Mes       { get; init; } = string.Empty;
-            public int    OrdemMes  { get; init; }
-            public int    Tot       { get; init; }
-            public int    Sat       { get; init; }
-            public int    Ins       { get; init; }
+            public string Municipality { get; init; } = string.Empty;
+            public string Region       { get; init; } = string.Empty;
+            public int    Year         { get; init; }
+            public string Month        { get; init; } = string.Empty;
+            public int    MonthOrder   { get; init; }
+            public int    Tot          { get; init; }
+            public int    Sat          { get; init; }
+            public int    Ins          { get; init; }
         }
 
-
-        public async Task<ProcessamentoGalMensalResult> ProcessarAsync(
-            string pathPdf,
-            string pathMestre,
+        public async Task<GalMonthlyProcessingResult> ProcessAsync(
+            string pdfPath,
+            string masterPath,
             IProgress<string>? progress = null)
         {
-            var result = new ProcessamentoGalMensalResult();
+            var result = new GalMonthlyProcessingResult();
             try
             {
-                var (meses, registros) = ExtrairComPython(pathPdf, progress);
-                result.MunicipiosEncontrados = registros.Count;
+                var (months, records) = ExtractWithPython(pdfPath, progress);
+                result.MunicipalitiesFound = records.Count;
 
-                progress?.Report($"Encontrados {registros.Count} municípios. Gerando linhas...");
-                var novasLinhas = GerarLinhasLong(registros, meses);
-                result.LinhasProcessadas = novasLinhas.Count;
+                progress?.Report($"Encontrados {records.Count} municípios. Gerando linhas...");
+                var newRows = GenerateLongRows(records, months);
+                result.RowsProcessed = newRows.Count;
 
                 progress?.Report("Atualizando arquivo mestre...");
-                await AtualizarMestreAsync(pathMestre, novasLinhas, meses, progress);
+                await UpdateMasterAsync(masterPath, newRows, months, progress);
 
-                result.Sucesso = true;
+                result.Success = true;
                 progress?.Report("Concluído.");
             }
             catch (Exception ex)
             {
-                result.Sucesso = false;
-                result.Erro = ex.Message;
+                result.Success = false;
+                result.ErrorMessage = ex.Message;
             }
             return result;
         }
 
         private static (
-            List<(string Abrev, string Nome, int Ano, int Ordem)> Meses,
-            List<(string Municipio, int[] Valores)> Registros
-        ) ExtrairComPython(string pathPdf, IProgress<string>? progress)
+            List<(string Abbrev, string Name, int Year, int Order)> Months,
+            List<(string Municipality, int[] Values)> Records
+        ) ExtractWithPython(string pdfPath, IProgress<string>? progress)
         {
             string exePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "gal_extract.exe");
             string pyPath  = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "gal_extract.py");
 
-            string procFile, procArgs;
+            string processFile, processArgs;
             if (File.Exists(exePath))
             {
-                procFile = exePath;
-                procArgs = $"\"{pathPdf}\"";
+                processFile = exePath;
+                processArgs = $"\"{pdfPath}\"";
             }
             else if (File.Exists(pyPath))
             {
-                procFile = EncontrarPython();
-                procArgs = $"\"{pyPath}\" \"{pathPdf}\"";
+                processFile = FindPython();
+                processArgs = $"\"{pyPath}\" \"{pdfPath}\"";
             }
             else
             {
@@ -105,8 +104,8 @@ namespace Conversor_de_Arquivos
 
             var psi = new System.Diagnostics.ProcessStartInfo
             {
-                FileName               = procFile,
-                Arguments              = procArgs,
+                FileName               = processFile,
+                Arguments              = processArgs,
                 RedirectStandardOutput = true,
                 RedirectStandardError  = true,
                 UseShellExecute        = false,
@@ -125,24 +124,22 @@ namespace Conversor_de_Arquivos
                 throw new InvalidOperationException(
                     $"gal_extract.py falhou (código {proc.ExitCode}): {stderr}");
 
-            // JSON: lista de listas de strings; índice 0 = cabeçalho com meses
             using var doc = System.Text.Json.JsonDocument.Parse(stdout);
-            var todasLinhas = doc.RootElement.EnumerateArray()
+            var allLines = doc.RootElement.EnumerateArray()
                 .Select(row => row.EnumerateArray()
                     .Select(cell => cell.GetString() ?? string.Empty)
                     .ToList())
                 .ToList();
 
-            if (todasLinhas.Count < 2)
+            if (allLines.Count < 2)
                 throw new InvalidDataException(
                     "Tabela retornada pelo extrator Python não contém dados.");
 
-            var headerRow = todasLinhas[0];
-            var dataRows  = todasLinhas.Skip(1).ToList();
+            var headerRow = allLines[0];
+            var dataRows  = allLines.Skip(1).ToList();
 
-            // Identifica meses e índices de coluna no cabeçalho
-            var meses         = new List<(string Abrev, string Nome, int Ano, int Ordem)>();
-            var mesColIndices = new List<int>();
+            var months         = new List<(string Abbrev, string Name, int Year, int Order)>();
+            var monthColIndices = new List<int>();
 
             for (int i = 0; i < headerRow.Count; i++)
             {
@@ -152,39 +149,38 @@ namespace Conversor_de_Arquivos
                     int sep = token.IndexOf('/');
                     if (sep <= 0) continue;
 
-                    string abrev  = token[..sep];
-                    string anoStr = token[(sep + 1)..];
+                    string abbrev  = token[..sep];
+                    string yearStr = token[(sep + 1)..];
 
-                    if (_mesMap.TryGetValue(abrev, out var info)
-                        && int.TryParse(anoStr, out int ano))
+                    if (_monthMap.TryGetValue(abbrev, out var info)
+                        && int.TryParse(yearStr, out int year))
                     {
-                        meses.Add((abrev, info.Nome, ano, info.Ordem));
-                        mesColIndices.Add(i);
+                        months.Add((abbrev, info.Name, year, info.Order));
+                        monthColIndices.Add(i);
                         break;
                     }
                 }
             }
 
-            if (meses.Count == 0)
+            if (months.Count == 0)
                 throw new InvalidDataException(
                     "Nenhum mês encontrado no cabeçalho da tabela extraída.");
 
             progress?.Report(
-                $"Meses: {string.Join(", ", meses.Select(m => m.Abrev + "/" + m.Ano))}");
+                $"Meses: {string.Join(", ", months.Select(m => m.Abbrev + "/" + m.Year))}");
 
-            int numValores = meses.Count * 3;
-            var registros  = new List<(string Municipio, int[] Valores)>();
+            int numValues = months.Count * 3;
+            var records   = new List<(string Municipality, int[] Values)>();
 
             foreach (var row in dataRows)
             {
                 if (row.Count == 0) continue;
 
-                string nome = row[0].Trim();
-                if (string.IsNullOrWhiteSpace(nome)) continue;
+                string name = row[0].Trim();
+                if (string.IsNullOrWhiteSpace(name)) continue;
 
-                // Lê TOT, SAT, INS para cada mês (3 colunas a partir do índice do mês)
                 var vals = new List<int>();
-                foreach (int col in mesColIndices)
+                foreach (int col in monthColIndices)
                 {
                     for (int offset = 0; offset < 3; offset++)
                     {
@@ -193,29 +189,29 @@ namespace Conversor_de_Arquivos
                     }
                 }
 
-                if (vals.Count < numValores) continue;
+                if (vals.Count < numValues) continue;
 
-                string canonico = CanonizarMunicipio(NormalizarNomeMunicipio(nome));
-                if (string.IsNullOrWhiteSpace(canonico)
-                    || canonico.Equals("TOTAL", StringComparison.OrdinalIgnoreCase))
+                string canonical = CanonizeMunicipality(NormalizeMunicipalityName(name));
+                if (string.IsNullOrWhiteSpace(canonical)
+                    || canonical.Equals("TOTAL", StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                registros.Add((canonico, [.. vals.Take(numValores)]));
+                records.Add((canonical, [.. vals.Take(numValues)]));
             }
 
-            return (meses, registros);
+            return (months, records);
         }
 
-        private static string EncontrarPython()
+        private static string FindPython()
         {
-            foreach (var candidato in new[] { "py", "python", "python3" })
+            foreach (var candidate in new[] { "py", "python", "python3" })
             {
                 try
                 {
                     using var p = System.Diagnostics.Process.Start(
                         new System.Diagnostics.ProcessStartInfo
                         {
-                            FileName               = candidato,
+                            FileName               = candidate,
                             Arguments              = "--version",
                             RedirectStandardOutput = true,
                             RedirectStandardError  = true,
@@ -223,35 +219,31 @@ namespace Conversor_de_Arquivos
                             CreateNoWindow         = true,
                         })!;
                     p.WaitForExit(3000);
-                    if (p.ExitCode == 0) return candidato;
+                    if (p.ExitCode == 0) return candidate;
                 }
-                catch { /* tenta próximo */ }
+                catch { /* try next */ }
             }
             throw new InvalidOperationException(
                 "Python não encontrado no PATH. Instale o Python e tente novamente.");
         }
 
-
-        // Matches the parsed municipality name against every entry in RondoniaRegionais.RegionalMap
-        // and returns the canonical form if a sufficiently strong match is found.
-        // Score = matched_words² / canonical_word_count.  Threshold ≥ 1.0 avoids false positives
+        // Score = matched_words² / canonical_word_count. Threshold ≥ 1.0 avoids false positives
         // from orphaned single-word fragments (e.g. a stray "D'OESTE").
-        private static string CanonizarMunicipio(string nomeParsed)
+        private static string CanonizeMunicipality(string parsedName)
         {
-            if (string.IsNullOrWhiteSpace(nomeParsed)) return nomeParsed;
+            if (string.IsNullOrWhiteSpace(parsedName)) return parsedName;
 
-            // Normalise for comparison: remove accents, upper-case, replace ' and - with space.
             static string Norm(string s) =>
-                RemoverAcentos(s).ToUpperInvariant()
+                StripAccents(s).ToUpperInvariant()
                     .Replace('\'', ' ').Replace('-', ' ');
 
             var parsedWords = new HashSet<string>(
-                Norm(nomeParsed).Split(' ', StringSplitOptions.RemoveEmptyEntries),
+                Norm(parsedName).Split(' ', StringSplitOptions.RemoveEmptyEntries),
                 StringComparer.OrdinalIgnoreCase);
 
-            if (parsedWords.Count == 0) return nomeParsed;
+            if (parsedWords.Count == 0) return parsedName;
 
-            string? bestKey  = null;
+            string? bestKey   = null;
             double  bestScore = 0;
 
             foreach (var (key, _) in RondoniaRegionais.RegionalMap)
@@ -266,53 +258,49 @@ namespace Conversor_de_Arquivos
                 if (score > bestScore) { bestScore = score; bestKey = key; }
             }
 
-            return bestKey != null && bestScore >= 1.0 ? bestKey : nomeParsed;
+            return bestKey != null && bestScore >= 1.0 ? bestKey : parsedName;
         }
 
-        // ──────────────────────────────────────────────────────────────────────
-        // Long-format row generation
-        // ──────────────────────────────────────────────────────────────────────
-
-        private static List<LinhaGal> GerarLinhasLong(
-            List<(string Municipio, int[] Valores)> registros,
-            List<(string Abrev, string Nome, int Ano, int Ordem)> meses)
+        private static List<GalRow> GenerateLongRows(
+            List<(string Municipality, int[] Values)> records,
+            List<(string Abbrev, string Name, int Year, int Order)> months)
         {
-            var linhas = new List<LinhaGal>();
+            var rows = new List<GalRow>();
 
-            foreach (var (municipio, valores) in registros)
+            foreach (var (municipality, values) in records)
             {
-                string chave    = RemoverAcentos(municipio.ToUpper());
-                string regional = RondoniaRegionais.ObterRegional(chave);
+                string key    = StripAccents(municipality.ToUpper());
+                string region = RondoniaRegionais.GetRegion(key);
 
-                for (int m = 0; m < meses.Count; m++)
+                for (int m = 0; m < months.Count; m++)
                 {
                     int baseIdx = m * 3;
-                    if (baseIdx + 2 >= valores.Length) break;
+                    if (baseIdx + 2 >= values.Length) break;
 
-                    linhas.Add(new LinhaGal
+                    rows.Add(new GalRow
                     {
-                        Municipio = municipio,
-                        Regional  = regional,
-                        Ano       = meses[m].Ano,
-                        Mes       = meses[m].Nome,
-                        OrdemMes  = meses[m].Ordem,
-                        Tot       = valores[baseIdx],
-                        Sat       = valores[baseIdx + 1],
-                        Ins       = valores[baseIdx + 2],
+                        Municipality = municipality,
+                        Region       = region,
+                        Year         = months[m].Year,
+                        Month        = months[m].Name,
+                        MonthOrder   = months[m].Order,
+                        Tot          = values[baseIdx],
+                        Sat          = values[baseIdx + 1],
+                        Ins          = values[baseIdx + 2],
                     });
                 }
             }
 
-            return linhas;
+            return rows;
         }
 
-        private static async Task AtualizarMestreAsync(
-            string pathMestre,
-            List<LinhaGal> novasLinhas,
-            List<(string Abrev, string Nome, int Ano, int Ordem)> meses,
+        private static async Task UpdateMasterAsync(
+            string masterPath,
+            List<GalRow> newRows,
+            List<(string Abbrev, string Name, int Year, int Order)> months,
             IProgress<string>? progress)
         {
-            static int LerInt(ExcelWorksheet ws, int row, int col)
+            static int ReadInt(ExcelWorksheet ws, int row, int col)
             {
                 object? v = ws.Cells[row, col].Value;
                 return v switch
@@ -325,55 +313,55 @@ namespace Conversor_de_Arquivos
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            var anoMesPdf = new HashSet<(int Ano, string Mes)>(
-                meses.Select(m => (m.Ano, m.Nome)));
+            var pdfMonthYear = new HashSet<(int Year, string Month)>(
+                months.Select(m => (m.Year, m.Name)));
 
-            var linhasExistentes = new List<LinhaGal>();
+            var existingRows = new List<GalRow>();
 
-            if (File.Exists(pathMestre))
+            if (File.Exists(masterPath))
             {
                 progress?.Report("Lendo linhas existentes do mestre...");
-                using var pkgRead = new ExcelPackage(new FileInfo(pathMestre));
+                using var pkgRead = new ExcelPackage(new FileInfo(masterPath));
                 var wsRead   = pkgRead.Workbook.Worksheets[0];
                 int lastRow  = wsRead.Dimension?.End.Row ?? 1;
 
                 for (int r = 2; r <= lastRow; r++)
                 {
-                    string municipio = wsRead.Cells[r, 1].Text;
-                    if (string.IsNullOrWhiteSpace(municipio)) continue;
+                    string municipality = wsRead.Cells[r, 1].Text;
+                    if (string.IsNullOrWhiteSpace(municipality)) continue;
 
-                    string regional = wsRead.Cells[r, 2].Text;
-                    int    ano      = LerInt(wsRead, r, 3);
-                    string mes      = wsRead.Cells[r, 4].Text;
+                    string region = wsRead.Cells[r, 2].Text;
+                    int    year   = ReadInt(wsRead, r, 3);
+                    string month  = wsRead.Cells[r, 4].Text;
 
-                    if (ano == 0 || string.IsNullOrWhiteSpace(mes)) continue;
+                    if (year == 0 || string.IsNullOrWhiteSpace(month)) continue;
 
-                    if (anoMesPdf.Contains((ano, mes))) continue;
+                    if (pdfMonthYear.Contains((year, month))) continue;
 
-                    _ordemPorNome.TryGetValue(mes, out int ordemMes);
+                    _orderByName.TryGetValue(month, out int monthOrder);
 
-                    linhasExistentes.Add(new LinhaGal
+                    existingRows.Add(new GalRow
                     {
-                        Municipio = municipio,
-                        Regional  = regional,
-                        Ano       = ano,
-                        Mes       = mes,
-                        OrdemMes  = ordemMes,
-                        Tot       = LerInt(wsRead, r, 5),
-                        Sat       = LerInt(wsRead, r, 6),
-                        Ins       = LerInt(wsRead, r, 7),
+                        Municipality = municipality,
+                        Region       = region,
+                        Year         = year,
+                        Month        = month,
+                        MonthOrder   = monthOrder,
+                        Tot          = ReadInt(wsRead, r, 5),
+                        Sat          = ReadInt(wsRead, r, 6),
+                        Ins          = ReadInt(wsRead, r, 7),
                     });
                 }
             }
 
-            var todasLinhas = linhasExistentes
-                .Concat(novasLinhas)
-                .OrderBy(l => l.Municipio)
-                .ThenBy(l => l.Ano)
-                .ThenBy(l => l.OrdemMes)
+            var allRows = existingRows
+                .Concat(newRows)
+                .OrderBy(r => r.Municipality)
+                .ThenBy(r => r.Year)
+                .ThenBy(r => r.MonthOrder)
                 .ToList();
 
-            progress?.Report($"Salvando {todasLinhas.Count} linhas no mestre...");
+            progress?.Report($"Salvando {allRows.Count} linhas no mestre...");
 
             using var pkg = new ExcelPackage();
             var ws = pkg.Workbook.Worksheets.Add("Dados");
@@ -386,14 +374,14 @@ namespace Conversor_de_Arquivos
             ws.Cells[1, 6].Value = "SAT";
             ws.Cells[1, 7].Value = "INS";
 
-            for (int r = 0; r < todasLinhas.Count; r++)
+            for (int r = 0; r < allRows.Count; r++)
             {
-                var l   = todasLinhas[r];
+                var l   = allRows[r];
                 int row = r + 2;
-                ws.Cells[row, 1].Value = l.Municipio;
-                ws.Cells[row, 2].Value = l.Regional;
-                ws.Cells[row, 3].Value = l.Ano;
-                ws.Cells[row, 4].Value = l.Mes;
+                ws.Cells[row, 1].Value = l.Municipality;
+                ws.Cells[row, 2].Value = l.Region;
+                ws.Cells[row, 3].Value = l.Year;
+                ws.Cells[row, 4].Value = l.Month;
                 ws.Cells[row, 5].Value = l.Tot;
                 ws.Cells[row, 6].Value = l.Sat;
                 ws.Cells[row, 7].Value = l.Ins;
@@ -402,46 +390,43 @@ namespace Conversor_de_Arquivos
             if (ws.Dimension != null)
                 ws.Cells[ws.Dimension.Address].AutoFitColumns();
 
-            await pkg.SaveAsAsync(new FileInfo(pathMestre));
+            await pkg.SaveAsAsync(new FileInfo(masterPath));
         }
 
         // Normalizes municipality names:
         //  • strips control chars
-        //  • collapses any run of apostrophe-like characters (with optional spaces between
-        //    them) into a single ASCII apostrophe — handles D''OESTE, D"OESTE, D ' ' OESTE
-        //  • removes the space that sometimes appears right before or after the apostrophe
-        private static string NormalizarNomeMunicipio(string nome)
+        //  • collapses any run of apostrophe-like characters into a single ASCII apostrophe
+        //  • removes the space that sometimes appears before or after the apostrophe
+        private static string NormalizeMunicipalityName(string name)
         {
-            var sb        = new StringBuilder(nome.Length);
-            bool prevApas = false;   // last meaningful char was an apostrophe
-            bool prevSpc  = false;   // last char appended was a space
+            var sb       = new StringBuilder(name.Length);
+            bool prevApos = false;
+            bool prevSpc  = false;
 
-            foreach (char c in nome)
+            foreach (char c in name)
             {
-                if (char.IsControl(c)) { prevApas = false; prevSpc = false; continue; }
+                if (char.IsControl(c)) { prevApos = false; prevSpc = false; continue; }
 
-                bool isApas = c is '\'' or '"'
-                    or '‘' or '’'   // ' '
-                    or '“' or '”'   // " "
-                    or '′' or '″'   // ′ ″
-                    or 'ʼ' or '´';  // ʼ ´
+                bool isApos = c is '\'' or '"'
+                    or '\u2018' or '\u2019'
+                    or '\u201C' or '\u201D'
+                    or '\u2032' or '\u2033'
+                    or '\u02BC' or '\u00B4';
 
-                if (isApas)
+                if (isApos)
                 {
-                    // Remove the trailing space that was written before this apostrophe
-                    // (handles "NOME D 'OESTE" → "NOME D'OESTE").
                     if (prevSpc && sb.Length > 0 && sb[sb.Length - 1] == ' ')
                         sb.Length--;
 
-                    if (!prevApas)
+                    if (!prevApos)
                         sb.Append('\'');
 
-                    prevApas = true;
+                    prevApos = true;
                     prevSpc  = false;
                 }
                 else if (c == ' ')
                 {
-                    if (!prevApas)  // skip space immediately after an apostrophe
+                    if (!prevApos)
                     {
                         sb.Append(' ');
                         prevSpc = true;
@@ -450,7 +435,7 @@ namespace Conversor_de_Arquivos
                 else
                 {
                     sb.Append(c);
-                    prevApas = false;
+                    prevApos = false;
                     prevSpc  = false;
                 }
             }
@@ -458,11 +443,11 @@ namespace Conversor_de_Arquivos
             return sb.ToString().Trim();
         }
 
-        private static string RemoverAcentos(string texto)
+        private static string StripAccents(string text)
         {
-            string normalizado = texto.Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder(normalizado.Length);
-            foreach (char c in normalizado)
+            string normalized = text.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder(normalized.Length);
+            foreach (char c in normalized)
             {
                 if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
                     sb.Append(c);

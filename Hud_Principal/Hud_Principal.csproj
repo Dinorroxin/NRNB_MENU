@@ -29,9 +29,6 @@
 		<Content Include="..\gal_extract.exe" Condition="Exists('..\gal_extract.exe')">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="..\gal_extract.py" Condition="!Exists('..\gal_extract.exe')">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 	</ItemGroup>
 
 	<!--

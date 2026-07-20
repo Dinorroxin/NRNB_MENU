@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/docs/">
+    <File Path="docs/AutomacoesVigiagua.md" />
+    <File Path="docs/AutomacoesVigiar.md" />
+  </Folder>
   <Folder Name="/Itens de Solução/">
     <File Path=".gitignore" />
     <File Path="captcha_solver.py" />

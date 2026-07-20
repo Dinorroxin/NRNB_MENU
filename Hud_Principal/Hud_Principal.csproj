@@ -34,4 +34,31 @@
 		</Content>
 	</ItemGroup>
 
+	<!--
+		Mantém Microsoft.Playwright.dll como arquivo solto ao lado do .exe
+		(não embutida no bundle). Necessário porque a DLL usa Assembly.Location
+		internamente para localizar o driver .playwright\node\win32_x64\node.exe.
+		Em single-file, Assembly.Location retorna string vazia → CodeBase → exceção.
+	-->
+	<Target Name="ExcludePlaywrightFromSingleFile" BeforeTargets="_ComputeFilesToBundle">
+		<ItemGroup>
+			<ResolvedFileToPublish
+				Condition="'%(ResolvedFileToPublish.FileName)' == 'Microsoft.Playwright'
+				       And '%(ResolvedFileToPublish.Extension)' == '.dll'">
+				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+			</ResolvedFileToPublish>
+		</ItemGroup>
+	</Target>
+
+	<!--
+		Instala o Chromium em playwright-browsers\ dentro do output de publish.
+		Roda após o publish, antes do robocopy. Só ativa em PublishSingleFile=true.
+		O robocopy no .bat copia a pasta inteira sem excluir playwright-browsers.
+	-->
+	<Target Name="InstallPlaywrightBrowsers" AfterTargets="Publish" Condition="'$(PublishSingleFile)' == 'true'">
+		<Exec
+			Command="&quot;$(PublishDir).playwright\node\win32_x64\node.exe&quot; &quot;$(PublishDir).playwright\package\cli.js&quot; install chromium"
+			EnvironmentVariables="PLAYWRIGHT_BROWSERS_PATH=$(PublishDir)playwright-browsers" />
+	</Target>
+
 </Project>

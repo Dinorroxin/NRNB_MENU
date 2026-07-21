@@ -8,12 +8,15 @@ namespace hud_principal
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            // Redireciona browsers do Playwright para pasta relativa ao .exe.
-            // Necessário em publish single-file: sem isso, Playwright busca em
-            // %LOCALAPPDATA%\ms-playwright, que não existe em máquina limpa.
-            Environment.SetEnvironmentVariable(
-                "PLAYWRIGHT_BROWSERS_PATH",
-                Path.Combine(AppContext.BaseDirectory, "playwright-browsers"));
+            // Redireciona browsers do Playwright para pasta relativa ao .exe,
+            // mas só quando essa pasta existir (só existe em publish single-file).
+            // Em Debug/F5 a pasta não existe: mantém o cache padrão do Playwright
+            // (%LOCALAPPDATA%\ms-playwright), evitando quebrar execução local.
+            var browsersPath = Path.Combine(AppContext.BaseDirectory, "playwright-browsers");
+            if (Directory.Exists(browsersPath))
+            {
+                Environment.SetEnvironmentVariable("PLAYWRIGHT_BROWSERS_PATH", browsersPath);
+            }
 
             base.OnStartup(e);
         }

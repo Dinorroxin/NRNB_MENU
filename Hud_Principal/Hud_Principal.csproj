@@ -40,22 +40,27 @@
 	<Target Name="ExcludePlaywrightFromSingleFile" BeforeTargets="_ComputeFilesToBundle">
 		<ItemGroup>
 			<ResolvedFileToPublish
-				Condition="'%(ResolvedFileToPublish.FileName)' == 'Microsoft.Playwright'
-				       And '%(ResolvedFileToPublish.Extension)' == '.dll'">
+				Condition="('%(ResolvedFileToPublish.FileName)' == 'Microsoft.Playwright' And '%(ResolvedFileToPublish.Extension)' == '.dll')
+							Or ('%(ResolvedFileToPublish.FileName)' == 'node' And '%(ResolvedFileToPublish.Extension)' == '.exe')">
 				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 			</ResolvedFileToPublish>
 		</ItemGroup>
 	</Target>
 
 	<!--
-		Instala o Chromium em playwright-browsers\ dentro do output de publish.
-		Roda após o publish, antes do robocopy. Só ativa em PublishSingleFile=true.
-		O robocopy no .bat copia a pasta inteira sem excluir playwright-browsers.
+		Copia o Chromium já baixado nesta máquina (via download anterior)
+		direto para playwright-browsers\ dentro do output de publish.
+		Não depende de node.exe nem roda instalador — só copia arquivos já existentes.
 	-->
-	<Target Name="InstallPlaywrightBrowsers" AfterTargets="Publish" Condition="'$(PublishSingleFile)' == 'true'">
-		<Exec
-			Command="&quot;$(PublishDir).playwright\node\win32_x64\node.exe&quot; &quot;$(PublishDir).playwright\package\cli.js&quot; install chromium"
-			EnvironmentVariables="PLAYWRIGHT_BROWSERS_PATH=$(PublishDir)playwright-browsers" />
+	<Target Name="ExportPlaywrightBrowsers" AfterTargets="Publish" Condition="'$(PublishSingleFile)' == 'true'">
+		<ItemGroup>
+			<PlaywrightBrowserFiles Include="$(USERPROFILE)\AppData\Local\ms-playwright\chromium-*\**\*.*;$(USERPROFILE)\AppData\Local\ms-playwright\ffmpeg-*\**\*.*"/>
+		</ItemGroup>
+		<Error Condition="'@(PlaywrightBrowserFiles)' == ''"
+			   Text="Chromium não encontrado em $(USERPROFILE)\AppData\Local\ms-playwright. Rode uma automação Playwright nesta máquina antes de publicar."/>
+		<Copy SourceFiles="@(PlaywrightBrowserFiles)"
+			  DestinationFolder="$(PublishDir)playwright-browsers\%(RecursiveDir)"
+			  SkipUnchangedFiles="true"/>
 	</Target>
-
+	
 </Project>

@@ -31,7 +31,7 @@ namespace Hud_Principal.Views
             string masterPath = Path.Combine(config.Vigiar.WildfiresFolder, "FOCOS_CALOR_MESTRE.xlsx");
 
             BtnStart.IsEnabled = false;
-            TxtStatus.Text     = string.Empty;
+            TxtStatus.Text = string.Empty;
 
             string logPath = Path.Combine(Path.GetTempPath(), "nrnb_vigiar_debug.log");
             File.WriteAllText(logPath, string.Empty);
@@ -55,7 +55,9 @@ namespace Hud_Principal.Views
             }
             catch (Exception ex)
             {
-                AppendStatus($"Erro inesperado: {ex.Message}");
+                string detalhe = $"Erro inesperado: {ex.GetType().Name}: {ex.Message}";
+                AppendStatus(detalhe);
+                File.AppendAllText(logPath, detalhe + "\n" + ex.StackTrace + "\n");
             }
             finally
             {

@@ -37,11 +37,13 @@
 		internamente para localizar o driver .playwright\node\win32_x64\node.exe.
 		Em single-file, Assembly.Location retorna string vazia → CodeBase → exceção.
 	-->
-	<Target Name="ExcludePlaywrightFromSingleFile" BeforeTargets="_ComputeFilesToBundle">
+	<Target Name="ExcludeNativeExecutablesFromSingleFile" BeforeTargets="_ComputeFilesToBundle">
 		<ItemGroup>
 			<ResolvedFileToPublish
 				Condition="('%(ResolvedFileToPublish.FileName)' == 'Microsoft.Playwright' And '%(ResolvedFileToPublish.Extension)' == '.dll')
-							Or ('%(ResolvedFileToPublish.FileName)' == 'node' And '%(ResolvedFileToPublish.Extension)' == '.exe')">
+							Or ('%(ResolvedFileToPublish.FileName)' == 'node' And '%(ResolvedFileToPublish.Extension)' == '.exe')
+							Or ('%(ResolvedFileToPublish.FileName)' == 'captcha_solver' And '%(ResolvedFileToPublish.Extension)' == '.exe')
+							Or ('%(ResolvedFileToPublish.FileName)' == 'gal_extract' And '%(ResolvedFileToPublish.Extension)' == '.exe')">
 				<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 			</ResolvedFileToPublish>
 		</ItemGroup>

@@ -6,6 +6,8 @@
 
 **/config.json
 
+*.txt
+
 build/
 dist/
 *.spec

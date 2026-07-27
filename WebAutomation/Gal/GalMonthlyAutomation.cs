@@ -47,6 +47,7 @@ namespace WebAutomation
                     progress.Report($"Tentativa {attempt} — carregando página...");
                     await page.GotoAsync("https://gal.rondonia.sus.gov.br/");
 
+                    await page.WaitForTimeoutAsync(200);
                     await page.FillAsync("[name='login']", username);
                     await page.FillAsync("[name='senha']", password);
 

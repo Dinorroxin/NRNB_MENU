@@ -1,5 +1,7 @@
 <Solution>
   <Folder Name="/docs/">
+    <File Path="Bat.md" />
+    <File Path="Dependencies.md" />
     <File Path="docs/AutomacoesVigiagua.md" />
     <File Path="docs/AutomacoesVigiar.md" />
   </Folder>

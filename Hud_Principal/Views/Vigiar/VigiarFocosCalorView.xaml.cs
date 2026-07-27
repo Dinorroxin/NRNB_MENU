@@ -1,6 +1,7 @@
 using Conversor_de_Arquivos;
 using Modulo_Seguranca;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using WebAutomation;
 
@@ -11,10 +12,24 @@ namespace Hud_Principal.Views
         public VigiarFocosCalorView()
         {
             InitializeComponent();
+            int currentYear = DateTime.Now.Year;
+            for (int y = currentYear; y >= 2021; y--)
+                ListBoxAnos.Items.Add(y);
         }
 
         private async void BtnStart_Click(object sender, RoutedEventArgs e)
         {
+            var selectedYears = ListBoxAnos.SelectedItems
+                .Cast<int>()
+                .OrderBy(y => y)
+                .ToList();
+
+            if (selectedYears.Count == 0)
+            {
+                AppendStatus("Selecione ao menos um ano.");
+                return;
+            }
+
             var config = new ConfigurationService().Load();
 
             var errors = PathVerifier.Verify(
@@ -50,6 +65,7 @@ namespace Hud_Principal.Views
 
                 await new VigiarFocosCalorService().ExecuteAsync(
                     masterPath,
+                    selectedYears,
                     (start, end) => automation.FetchWeekJsonAsync(start, end),
                     progress);
             }

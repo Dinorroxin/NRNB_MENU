@@ -58,6 +58,23 @@
 
                 <Separator Background="#2a2a2a" Margin="0,0,0,24"/>
 
+                <!-- Year selection -->
+                <StackPanel Margin="0,0,0,24">
+                    <TextBlock Text="Anos a processar" Foreground="#999999" FontSize="12" Margin="0,0,0,6"/>
+                    <TextBlock Text="Segure Ctrl para selecionar múltiplos anos."
+                               FontSize="11" Foreground="#555555" Margin="0,0,0,8"/>
+                    <ListBox x:Name="ListBoxAnos"
+                             SelectionMode="Multiple"
+                             Height="120"
+                             Background="#1a1a1a"
+                             Foreground="#e5e7e6"
+                             BorderBrush="#333333"
+                             BorderThickness="1"
+                             FontSize="13"
+                             Width="200"
+                             HorizontalAlignment="Left"/>
+                </StackPanel>
+
                 <!-- Action -->
                 <Button x:Name="BtnStart"
                         Content="Iniciar coleta"

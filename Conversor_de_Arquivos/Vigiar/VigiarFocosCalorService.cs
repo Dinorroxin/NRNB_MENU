@@ -5,24 +5,18 @@ namespace Conversor_de_Arquivos
 {
     public class VigiarFocosCalorService
     {
-        private const int DelayBetweenCallsMs      = 400;
-        private const int InitialHistoricalLoadYear = 2021;
+        private const int DelayBetweenCallsMs = 400;
 
         private readonly FocosCalorDataProcessor _processor = new();
 
         public async Task ExecuteAsync(
             string masterPath,
+            List<int> years,
             Func<DateTime, DateTime, Task<string>> fetchWeekJson,
             IProgress<string> progress)
         {
-            var lastRecorded = _processor.ReadMaxWeek(masterPath);
-            DateTime startDate = lastRecorded.HasValue
-                ? EpidemiologicalWeek.WeekStart(lastRecorded.Value.Year, lastRecorded.Value.Week).AddDays(7)
-                : EpidemiologicalWeek.WeekStart(InitialHistoricalLoadYear, 1);
-
             var lastClosed = EpidemiologicalWeek.LastClosedWeek(DateTime.Now);
-
-            var pending = BuildPendingList(startDate, lastClosed);
+            var pending = BuildPendingListForYears(years, lastClosed);
 
             if (pending.Count == 0)
             {
@@ -82,18 +76,21 @@ namespace Conversor_de_Arquivos
             return new WeekHotspots(year, week, start, end, hotspots);
         }
 
-        private static List<EpidemiologicalWeek.WeekInfo> BuildPendingList(
-            DateTime startDate, EpidemiologicalWeek.WeekInfo lastClosed)
+        private static List<EpidemiologicalWeek.WeekInfo> BuildPendingListForYears(
+            List<int> years, EpidemiologicalWeek.WeekInfo lastClosed)
         {
             var list = new List<EpidemiologicalWeek.WeekInfo>();
-            var d = startDate;
-            while (true)
+            foreach (int year in years.OrderBy(y => y))
             {
-                var w = EpidemiologicalWeek.Calculate(d);
-                if (w.Year > lastClosed.Year || (w.Year == lastClosed.Year && w.Week > lastClosed.Week))
-                    break;
-                list.Add(w);
-                d = d.AddDays(7);
+                var d = EpidemiologicalWeek.WeekStart(year, 1);
+                while (true)
+                {
+                    var w = EpidemiologicalWeek.Calculate(d);
+                    if (w.Year > year) break;
+                    if (w.Year > lastClosed.Year || (w.Year == lastClosed.Year && w.Week > lastClosed.Week)) break;
+                    list.Add(w);
+                    d = d.AddDays(7);
+                }
             }
             return list;
         }

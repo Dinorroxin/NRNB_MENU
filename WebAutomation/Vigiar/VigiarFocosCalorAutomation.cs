@@ -5,7 +5,8 @@ namespace WebAutomation
 {
     public class VigiarFocosCalorAutomation : IAsyncDisposable
     {
-        private const string BdQueimadasUrl = "https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/#graficos";
+        private const string BdQueimadasUrl        = "https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/#graficos";
+        private const int    FiresByCityTimeoutMs   = 10_000;
 
         private IPlaywright?       _playwright;
         private IBrowser?          _browser;
@@ -105,12 +106,14 @@ namespace WebAutomation
 
             bool isOpen = await _page.EvaluateAsync<bool>(
                 "document.querySelector('#box-firesByCity div[style]').style.display !== 'none'");
+            _progress?.Report($"[accordion] firesByCity aberto={isOpen}; " +
+                              (isOpen ? "aguardando refresh automático" : "clicando para abrir"));
             if (!isOpen)
                 await _page.ClickAsync("#box-firesByCity .layer-title");
 
             try
             {
-                string json = await tcsCity.Task.WaitAsync(TimeSpan.FromSeconds(15));
+                string json = await tcsCity.Task.WaitAsync(TimeSpan.FromMilliseconds(FiresByCityTimeoutMs));
                 _page.Request -= OnRequest;
                 await _page.UnrouteAsync("**/graphicsfirescount**", handler);
                 return json;

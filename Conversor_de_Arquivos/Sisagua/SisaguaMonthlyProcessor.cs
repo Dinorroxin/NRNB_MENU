@@ -58,6 +58,7 @@ namespace Conversor_de_Arquivos
                     string codIbge = rowPerc[1]?.ToString() ?? string.Empty;
                     string population = rowPerc[2]?.ToString() ?? string.Empty;
                     string region = RondoniaRegionais.GetRegion(municipality);
+                    string obrigatorio = CleanN(rowN[3]?.ToString() ?? string.Empty);
 
                     for (int m = 0; m < 12; m++)
                     {
@@ -77,6 +78,7 @@ namespace Conversor_de_Arquivos
                             Months[m],
                             CleanPercentage(rawPerc),
                             CleanN(rawN),
+                            obrigatorio,
                             parameter
                         ]);
                     }
@@ -107,7 +109,7 @@ namespace Conversor_de_Arquivos
 
                     string[] headers =
                         ["Município", "CodIBGE", "Populacao", "Regional",
-                         "Ano", "Mes", "Percentual", "N", "Parametro"];
+                         "Ano", "Mes", "Percentual", "N", "Obrigatorio", "Parametro"];
                     for (int c = 0; c < headers.Length; c++)
                         ws.Cells[1, c + 1].Value = headers[c];
                 }

@@ -90,10 +90,18 @@ namespace Conversor_de_Arquivos
                 ExcelPackage package;
                 ExcelWorksheet ws;
 
-                if (File.Exists(masterPath))
+                string[] headers =
+                    ["Município", "CodIBGE", "Populacao", "Regional",
+                    "Ano", "Mes", "Percentual", "N", "Obrigatorio", "Parametro"];
+
+            if (File.Exists(masterPath))
                 {
                     package = new ExcelPackage(new FileInfo(masterPath));
                     ws = package.Workbook.Worksheets[0];
+
+                    // Sempre realinha o header, mesmo em arquivo existente
+                    for (int c = 0; c < headers.Length; c++)
+                        ws.Cells[1, c + 1].Value = headers[c];
 
                     int lastRow = ws.Dimension?.End.Row ?? 1;
                     for (int r = lastRow; r >= 2; r--)
@@ -107,9 +115,6 @@ namespace Conversor_de_Arquivos
                     package = new ExcelPackage();
                     ws = package.Workbook.Worksheets.Add("Dados");
 
-                    string[] headers =
-                        ["Município", "CodIBGE", "Populacao", "Regional",
-                         "Ano", "Mes", "Percentual", "N", "Obrigatorio", "Parametro"];
                     for (int c = 0; c < headers.Length; c++)
                         ws.Cells[1, c + 1].Value = headers[c];
                 }

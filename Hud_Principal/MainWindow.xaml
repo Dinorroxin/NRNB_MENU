@@ -300,9 +300,9 @@
             </InlineUIContainer>
             <Hyperlink
                 Foreground="AntiqueWhite"
-                NavigateUri="https://github.com/Dinorroxin/NRNB_MENU"
+                NavigateUri="https://github.com/FelipeSRGalvez/NRNB_MENU"
                 RequestNavigate="Hyperlink_RequestNavigate">
-                github.com/Dinorroxin/NRNB_MENU
+                github.com/FelipeSRGalvez/NRNB_MENU
             </Hyperlink>
         </TextBlock>
 

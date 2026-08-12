@@ -14,7 +14,7 @@ namespace Conversor_de_Arquivos.Sisam
                 .ToList();
 
             var chavesBatch = lote
-                .Select(r => (r.Poluente, r.DiasPrevisao, r.Data))
+                .Select(r => (r.Poluente, r.DiasPrevisao))
                 .ToHashSet();
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -39,7 +39,7 @@ namespace Conversor_de_Arquivos.Sisam
                     string data = wsRead.Cells[r, 4].Text;
                     int    dias = int.TryParse(wsRead.Cells[r, 5].Text, out int d) ? d : -1;
 
-                    if (chavesBatch.Contains((pol, dias, data))) continue;
+                    if (chavesBatch.Contains((pol, dias))) continue;
 
                     linhasExistentes.Add(new LinhaExistente(
                         mun,

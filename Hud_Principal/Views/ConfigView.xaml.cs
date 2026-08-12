@@ -36,6 +36,8 @@ namespace Hud_Principal.Views
                 TxtVigiarRawFolder.Text       = config.Vigiar.RawFilesFolder;
                 TxtVigiarIqArFolder.Text      = config.Vigiar.IqArFolder;
 
+                TxtSisamMestreFolder.Text = config.Sisam.PastaSisamMestre;
+
                 TxtGalUsername.Text = config.Gal.Username;
                 TxtGalPassword.Password = config.Gal.Password;
                 TxtGalModule.Text = config.Gal.Module;
@@ -71,6 +73,8 @@ namespace Hud_Principal.Views
             config.Vigiar.RawFilesFolder  = TxtVigiarRawFolder.Text;
             config.Vigiar.IqArFolder      = TxtVigiarIqArFolder.Text;
 
+            config.Sisam.PastaSisamMestre = TxtSisamMestreFolder.Text;
+
             config.Gal.Username = TxtGalUsername.Text;
             config.Gal.Password = TxtGalPassword.Password;
             config.Gal.Module = TxtGalModule.Text;
@@ -87,6 +91,12 @@ namespace Hud_Principal.Views
 
         private void BtnGalSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(GalSection);
+
+        private void BtnSisamSection_Click(object sender, RoutedEventArgs e)
+            => ToggleSection(SisamSection);
+
+        private void BtnSisamMestreFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtSisamMestreFolder);
 
         private void BtnVigiarSection_Click(object sender, RoutedEventArgs e)
             => ToggleSection(VigiarSection);

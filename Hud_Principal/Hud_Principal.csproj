@@ -23,10 +23,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="..\captcha_solver.exe">
+		<Content Include="..\captcha_solver.exe" Condition="Exists('..\captcha_solver.exe')">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Include="..\gal_extract.exe">
+		<Content Include="..\gal_extract.exe" Condition="Exists('..\gal_extract.exe')">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+		<Content Include="..\gal_extract.py" Condition="!Exists('..\gal_extract.exe')">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

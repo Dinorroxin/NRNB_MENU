@@ -160,6 +160,28 @@
                 </StackPanel>
 
                 <Button
+                    x:Name="BtnSisamSection"
+                    Content="🌫 Sisam"
+                    HorizontalAlignment="Left"
+                    FontSize="25"
+                    Padding="14,10"
+                    Style="{StaticResource SidebarButton}"
+                    Click="BtnSisamSection_Click"/>
+
+                <StackPanel x:Name="SisamSection" Style="{StaticResource SubmenuPanel}" Margin="14,10,0,0">
+
+                    <TextBlock Text="Pasta Arquivo Mestre" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button Content="📁" DockPanel.Dock="Right"
+                                Style="{StaticResource FolderButton}"
+                                Click="BtnSisamMestreFolder_Click"/>
+                        <TextBox x:Name="TxtSisamMestreFolder"
+                                 Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
+                </StackPanel>
+
+                <Button
                     x:Name="BtnVigiarSection"
                     Content="🔥 Vigiar"
                     HorizontalAlignment="Left"

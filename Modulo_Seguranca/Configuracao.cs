@@ -63,6 +63,15 @@ namespace Modulo_Seguranca
         public string GalMonthlyFolder { get; set; } = string.Empty;
     }
 
+    public class ConfigurationSisam
+    {
+        [JsonPropertyName("PastaArquivosBrutosSisam")]
+        public string RawFilesFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaSisamMestre")]
+        public string PastaSisamMestre { get; set; } = string.Empty;
+    }
+
     public class Configuration
     {
         [JsonPropertyName("ExtensoesBloqueadas")]
@@ -71,5 +80,6 @@ namespace Modulo_Seguranca
         public ConfigurationVigiagua Vigiagua { get; set; } = new ConfigurationVigiagua();
         public ConfigurationGal Gal { get; set; } = new ConfigurationGal();
         public ConfigurationVigiar Vigiar { get; set; } = new ConfigurationVigiar();
+        public ConfigurationSisam Sisam { get; set; } = new ConfigurationSisam();
     }
 }

@@ -88,6 +88,16 @@
                         <TextBox x:Name="TxtAnnualDirectiveFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
                     </DockPanel>
 
+                    <TextBlock Text="Pasta Implementação Anual" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button
+                            Content="📁"
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource FolderButton}"
+                            Click="BtnAnnualImplementationFolder_Click"/>
+                        <TextBox x:Name="TxtAnnualImplementationFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
                     <TextBlock Text="Pasta Controle" Foreground="#9CA3A0" Margin="0,8,0,4"/>
                     <DockPanel LastChildFill="True">
                         <Button

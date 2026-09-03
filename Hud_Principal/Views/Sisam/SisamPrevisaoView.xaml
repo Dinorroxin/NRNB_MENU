@@ -59,13 +59,13 @@
                               Foreground="#e5e7e6" Margin="0,0,24,10"/>
                     <CheckBox x:Name="ChkPm10" Content="MP10"  IsChecked="True"
                               Foreground="#e5e7e6" Margin="0,0,24,10"/>
-                    <CheckBox x:Name="ChkO3"   Content="O3"    IsChecked="True"
+                    <CheckBox x:Name="ChkO3"   Content="O3"    IsChecked="False"
                               Foreground="#e5e7e6" Margin="0,0,24,10"/>
-                    <CheckBox x:Name="ChkNo2"  Content="NO2"   IsChecked="True"
+                    <CheckBox x:Name="ChkNo2"  Content="NO2"   IsChecked="False"
                               Foreground="#e5e7e6" Margin="0,0,24,10"/>
-                    <CheckBox x:Name="ChkSo2"  Content="SO2"   IsChecked="True"
+                    <CheckBox x:Name="ChkSo2"  Content="SO2"   IsChecked="False"
                               Foreground="#e5e7e6" Margin="0,0,24,10"/>
-                    <CheckBox x:Name="ChkCo"   Content="CO"    IsChecked="True"
+                    <CheckBox x:Name="ChkCo"   Content="CO"    IsChecked="False"
                               Foreground="#e5e7e6" Margin="0,0,24,10"/>
                 </WrapPanel>
 

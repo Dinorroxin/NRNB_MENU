@@ -30,11 +30,12 @@ namespace Hud_Principal.Views
                 TxtRawFolder.Text = config.Vigiagua.RawFilesFolder;
                 TxtMonthlyDirectiveFolder.Text = config.Vigiagua.MonthlyDirectiveFolder;
                 TxtAnnualDirectiveFolder.Text = config.Vigiagua.AnnualDirectiveFolder;
+                TxtAnnualImplementationFolder.Text = config.Vigiagua.AnnualImplementationFolder;
                 TxtControlFolder.Text = config.Vigiagua.ControlFolder;
 
                 TxtVigiarWildfiresFolder.Text = config.Vigiar.WildfiresFolder;
-                TxtVigiarRawFolder.Text       = config.Vigiar.RawFilesFolder;
-                TxtVigiarIqArFolder.Text      = config.Vigiar.IqArFolder;
+                TxtVigiarRawFolder.Text = config.Vigiar.RawFilesFolder;
+                TxtVigiarIqArFolder.Text = config.Vigiar.IqArFolder;
 
                 TxtSisamMestreFolder.Text = config.Sisam.PastaSisamMestre;
 
@@ -67,11 +68,12 @@ namespace Hud_Principal.Views
             config.Vigiagua.RawFilesFolder = TxtRawFolder.Text;
             config.Vigiagua.MonthlyDirectiveFolder = TxtMonthlyDirectiveFolder.Text;
             config.Vigiagua.AnnualDirectiveFolder = TxtAnnualDirectiveFolder.Text;
+            config.Vigiagua.AnnualImplementationFolder = TxtAnnualImplementationFolder.Text;
             config.Vigiagua.ControlFolder = TxtControlFolder.Text;
 
             config.Vigiar.WildfiresFolder = TxtVigiarWildfiresFolder.Text;
-            config.Vigiar.RawFilesFolder  = TxtVigiarRawFolder.Text;
-            config.Vigiar.IqArFolder      = TxtVigiarIqArFolder.Text;
+            config.Vigiar.RawFilesFolder = TxtVigiarRawFolder.Text;
+            config.Vigiar.IqArFolder = TxtVigiarIqArFolder.Text;
 
             config.Sisam.PastaSisamMestre = TxtSisamMestreFolder.Text;
 
@@ -115,12 +117,25 @@ namespace Hud_Principal.Views
             if (section.MaxHeight == 0)
             {
                 section.Visibility = Visibility.Visible;
-                var anim = new System.Windows.Media.Animation.DoubleAnimation(0, 400, TimeSpan.FromSeconds(0.25));
+
+                // Limpa qualquer animação ativa deixada pelo fechamento anterior —
+                // senão o SetValue abaixo é ignorado (animação ativa tem prioridade
+                // sobre atribuição direta) e o Measure() continua preso em 0.
+                section.BeginAnimation(FrameworkElement.MaxHeightProperty, null);
+
+                section.MaxHeight = double.PositiveInfinity;
+                section.Measure(new System.Windows.Size(section.ActualWidth > 0 ? section.ActualWidth : double.PositiveInfinity,
+                    double.PositiveInfinity));
+                double targetHeight = section.DesiredSize.Height;
+                section.MaxHeight = 0;
+
+                var anim = new System.Windows.Media.Animation.DoubleAnimation(0, targetHeight, TimeSpan.FromSeconds(0.25));
                 section.BeginAnimation(FrameworkElement.MaxHeightProperty, anim);
             }
             else
             {
-                var anim = new System.Windows.Media.Animation.DoubleAnimation(400, 0, TimeSpan.FromSeconds(0.2));
+                double currentHeight = section.ActualHeight;
+                var anim = new System.Windows.Media.Animation.DoubleAnimation(currentHeight, 0, TimeSpan.FromSeconds(0.2));
                 anim.Completed += (s, e) => section.Visibility = Visibility.Collapsed;
                 section.BeginAnimation(FrameworkElement.MaxHeightProperty, anim);
             }
@@ -166,6 +181,9 @@ namespace Hud_Principal.Views
 
         private void BtnAnnualDirectiveFolder_Click(object sender, RoutedEventArgs e)
             => SelectFolder(TxtAnnualDirectiveFolder);
+
+        private void BtnAnnualImplementationFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtAnnualImplementationFolder);
 
         private void BtnControlFolder_Click(object sender, RoutedEventArgs e)
             => SelectFolder(TxtControlFolder);

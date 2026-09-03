@@ -21,6 +21,9 @@ namespace Modulo_Seguranca
         [JsonPropertyName("PastaCumprimentoDaDiretrizAnual")]
         public string AnnualDirectiveFolder { get; set; } = string.Empty;
 
+        [JsonPropertyName("PastaImplementacaoAnual")]
+        public string AnnualImplementationFolder { get; set; } = string.Empty;
+
         [JsonPropertyName("PastaControle")]
         public string ControlFolder { get; set; } = string.Empty;
     }

@@ -15,16 +15,17 @@ namespace Hud_Principal
         {
             InitializeComponent();
             // Lista com os ids dos paineis
-            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel, SisamPrevisaoPanel];
+            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, AnnualSisaguaImplementationPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel, SisamPrevisaoPanel];
 
             // Puxa a função para o view para voltar ao HomeView
-            ConfigPanel.RequestHome            += (s, e) => ShowPanel(HomePanel);
-            MonthlySisaguaPanel.RequestHome    += (s, e) => ShowPanel(HomePanel);
-            AnnualSisaguaPanel.RequestHome     += (s, e) => ShowPanel(HomePanel);
-            MonthlyGalPanel.RequestHome        += (s, e) => ShowPanel(HomePanel);
-            VigiarFocosCalorPanel.RequestHome  += (s, e) => ShowPanel(HomePanel);
-            VigiarIqArPanel.RequestHome        += (s, e) => ShowPanel(HomePanel);
-            SisamPrevisaoPanel.RequestHome     += (s, e) => ShowPanel(HomePanel);
+            ConfigPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            MonthlySisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            AnnualSisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            AnnualSisaguaImplementationPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            MonthlyGalPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            VigiarFocosCalorPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            VigiarIqArPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            SisamPrevisaoPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
         }
 
         // Função que dará animação e delay de abertura e fechamento de submenu (sidepanel) para dar mais fluidez
@@ -80,7 +81,7 @@ namespace Hud_Principal
             foreach (var i in _panels)
                 i.Visibility = Visibility.Collapsed;
 
-            panel.Visibility = Visibility.Visible;   
+            panel.Visibility = Visibility.Visible;
         }
 
         // Acessa a grid das configurações
@@ -96,6 +97,9 @@ namespace Hud_Principal
 
         private void BtnAnnualSisagua_Click(object sender, RoutedEventArgs e)
             => ShowPanel(AnnualSisaguaPanel);
+
+        private void BtnAnnualSisaguaImplementation_Click(object sender, RoutedEventArgs e)
+            => ShowPanel(AnnualSisaguaImplementationPanel);
 
         private void BtnMonthlyGal_CLick(object sender, RoutedEventArgs e)
             => ShowPanel(MonthlyGalPanel);

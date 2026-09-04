@@ -78,6 +78,10 @@
                                   Content="Nome (SAA, SAC, SAI ou CARRO-PIPA)"
                                   Foreground="#e5e7e6" FontSize="13" Margin="0,0,20,8"
                                   Checked="InfoItem_Changed" Unchecked="InfoItem_Changed"/>
+                        <CheckBox x:Name="ChkCodigo"
+                                  Content="Código (SAA, SAC, SAI ou CARRO-PIPA)"
+                                  Foreground="#e5e7e6" FontSize="13" Margin="0,0,20,8"
+                                  Checked="InfoItem_Changed" Unchecked="InfoItem_Changed"/>
                         <CheckBox x:Name="ChkZona"
                                   Content="Zona"
                                   Foreground="#e5e7e6" FontSize="13" Margin="0,0,20,8"

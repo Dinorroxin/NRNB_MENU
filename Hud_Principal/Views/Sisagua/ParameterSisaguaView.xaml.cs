@@ -1,6 +1,7 @@
+using Conversor_de_Arquivos;
 using Modulo_Seguranca;
+using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using WebAutomation;
 using CheckBox = System.Windows.Controls.CheckBox;
 using MessageBox = System.Windows.MessageBox;
@@ -213,7 +214,35 @@ namespace Hud_Principal.Views
             }
             else
             {
-                TxtStatus.Text = $"Concluído. {result.DownloadedFiles.Count} arquivo(s) baixado(s).";
+                // Básicos e Demais são mutuamente exclusivos na tela — o mestre a atualizar
+                // depende de qual seção de resultado foi marcada nesse processamento.
+                string masterFileName = basicosLabels.Count > 0
+                    ? "AMOSTRAS_ANALISADAS_BASICOS_MESTRE.xlsx"
+                    : "AMOSTRAS_ANALISADAS_DEMAIS_MESTRE.xlsx";
+
+                string masterPath = Path.Combine(
+                    config.Vigiagua.AnalyzedSamplesFolder, masterFileName);
+
+                var processor = new AmostrasAnalisadasProcessor();
+                var processingErrors = new List<string>();
+
+                foreach (var rawPath in result.DownloadedFiles)
+                {
+                    var proc = await processor.ProcessAsync(rawPath, masterPath, progress);
+                    if (!proc.Success)
+                        processingErrors.Add($"{proc.Year}: {proc.ErrorMessage}");
+                }
+
+                if (processingErrors.Count > 0)
+                {
+                    TxtStatus.Text = "Concluído com erros no processamento.";
+                    MessageBox.Show(string.Join("\n", processingErrors), "Erros",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    TxtStatus.Text = $"Concluído. {result.DownloadedFiles.Count} arquivo(s) processado(s).";
+                }
             }
         }
     }

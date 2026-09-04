@@ -64,8 +64,6 @@ namespace WebAutomation
                 await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
                 await Task.Delay(1000);
 
-                // TODO: Se após "Unidade Federativa" surgir campo adicional de estado,
-                // selecionar "Rondônia" seguindo o padrão de filtro em cascata.
 
                 // Loop por ano — cada ano é processado de forma completa e independente
                 foreach (var year in years.OrderBy(y => y))
@@ -152,7 +150,7 @@ namespace WebAutomation
             if (!isChecked)
                 await dl.Locator("dt .ui-chkbox").ClickAsync();
 
-            await page.WaitForTimeoutAsync(300);
+            await page.WaitForTimeoutAsync(1000);
         }
     }
 }

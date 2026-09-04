@@ -15,13 +15,14 @@ namespace Hud_Principal
         {
             InitializeComponent();
             // Lista com os ids dos paineis
-            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, AnnualSisaguaImplementationPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel, SisamPrevisaoPanel];
+            _panels = [HomePanel, ConfigPanel, MonthlySisaguaPanel, AnnualSisaguaPanel, AnnualSisaguaImplementationPanel, ParameterSisaguaPanel, MonthlyGalPanel, VigiarFocosCalorPanel, VigiarIqArPanel, SisamPrevisaoPanel];
 
             // Puxa a função para o view para voltar ao HomeView
             ConfigPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             MonthlySisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             AnnualSisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             AnnualSisaguaImplementationPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
+            ParameterSisaguaPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             MonthlyGalPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             VigiarFocosCalorPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
             VigiarIqArPanel.RequestHome += (s, e) => ShowPanel(HomePanel);
@@ -100,6 +101,9 @@ namespace Hud_Principal
 
         private void BtnAnnualSisaguaImplementation_Click(object sender, RoutedEventArgs e)
             => ShowPanel(AnnualSisaguaImplementationPanel);
+
+        private void BtnParameterSisagua_Click(object sender, RoutedEventArgs e)
+            => ShowPanel(ParameterSisaguaPanel);
 
         private void BtnMonthlyGal_CLick(object sender, RoutedEventArgs e)
             => ShowPanel(MonthlyGalPanel);

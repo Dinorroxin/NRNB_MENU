@@ -32,6 +32,7 @@ namespace Hud_Principal.Views
                 TxtAnnualDirectiveFolder.Text = config.Vigiagua.AnnualDirectiveFolder;
                 TxtAnnualImplementationFolder.Text = config.Vigiagua.AnnualImplementationFolder;
                 TxtControlFolder.Text = config.Vigiagua.ControlFolder;
+                TxtAnalyzedSamplesFolder.Text = config.Vigiagua.AnalyzedSamplesFolder;
 
                 TxtVigiarWildfiresFolder.Text = config.Vigiar.WildfiresFolder;
                 TxtVigiarRawFolder.Text = config.Vigiar.RawFilesFolder;
@@ -70,6 +71,7 @@ namespace Hud_Principal.Views
             config.Vigiagua.AnnualDirectiveFolder = TxtAnnualDirectiveFolder.Text;
             config.Vigiagua.AnnualImplementationFolder = TxtAnnualImplementationFolder.Text;
             config.Vigiagua.ControlFolder = TxtControlFolder.Text;
+            config.Vigiagua.AnalyzedSamplesFolder = TxtAnalyzedSamplesFolder.Text;
 
             config.Vigiar.WildfiresFolder = TxtVigiarWildfiresFolder.Text;
             config.Vigiar.RawFilesFolder = TxtVigiarRawFolder.Text;
@@ -187,6 +189,9 @@ namespace Hud_Principal.Views
 
         private void BtnControlFolder_Click(object sender, RoutedEventArgs e)
             => SelectFolder(TxtControlFolder);
+
+        private void BtnAnalyzedSamplesFolder_Click(object sender, RoutedEventArgs e)
+            => SelectFolder(TxtAnalyzedSamplesFolder);
 
         private void BtnGalRawFolderClick(object sender, RoutedEventArgs e)
             => SelectFolder(TxtGalRawFolder);

@@ -125,13 +125,20 @@
                                 FontSize="12" 
                                 Style="{StaticResource SidebarButton}"
                                 Click="BtnAnnualSisagua_Click"/>
-                            <Button 
+                            <Button
                                 Content="    Implementação Sisagua"
                                 HorizontalContentAlignment="Left"
-                                Padding="14,8" 
-                                FontSize="12" 
+                                Padding="14,8"
+                                FontSize="12"
                                 Style="{StaticResource SidebarButton}"
                                 Click="BtnAnnualSisaguaImplementation_Click"/>
+                            <Button
+                                Content="    Amostras Analisadas"
+                                HorizontalContentAlignment="Left"
+                                Padding="14,8"
+                                FontSize="12"
+                                Style="{StaticResource SidebarButton}"
+                                Click="BtnParameterSisagua_Click"/>
                         </StackPanel>
 
                         <!-- GAL -->
@@ -310,6 +317,12 @@
 
         <views:AnnualSisaguaImplementation
             x:Name="AnnualSisaguaImplementationPanel"
+            Grid.Column="1"
+            Grid.Row="1"
+            Visibility="Collapsed"/>
+
+        <views:ParameterSisaguaView
+            x:Name="ParameterSisaguaPanel"
             Grid.Column="1"
             Grid.Row="1"
             Visibility="Collapsed"/>

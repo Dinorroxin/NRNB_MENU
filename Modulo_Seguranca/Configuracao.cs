@@ -26,6 +26,9 @@ namespace Modulo_Seguranca
 
         [JsonPropertyName("PastaControle")]
         public string ControlFolder { get; set; } = string.Empty;
+
+        [JsonPropertyName("PastaAmostrasAnalisadas")]
+        public string AnalyzedSamplesFolder { get; set; } = string.Empty;
     }
 
     public class ConfigurationVigiar

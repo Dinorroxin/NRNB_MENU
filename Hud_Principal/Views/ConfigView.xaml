@@ -108,6 +108,16 @@
                         <TextBox x:Name="TxtControlFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
                     </DockPanel>
 
+                    <TextBlock Text="Pasta Amostras Analisadas" Foreground="#9CA3A0" Margin="0,8,0,4"/>
+                    <DockPanel LastChildFill="True">
+                        <Button
+                            Content="📁"
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource FolderButton}"
+                            Click="BtnAnalyzedSamplesFolder_Click"/>
+                        <TextBox x:Name="TxtAnalyzedSamplesFolder" Style="{StaticResource FormField}" IsReadOnly="True"/>
+                    </DockPanel>
+
                 </StackPanel>
 
                 <Button
